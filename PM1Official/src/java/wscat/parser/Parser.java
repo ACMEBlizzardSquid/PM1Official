@@ -233,7 +233,8 @@ public abstract class Parser extends RecursiveAction {
 			return delegatedSet;
 		}
 		if(! isForkingEnabled()){
-			// TODO: flCounter - urls -> remove unused urls
+                    while(searchDepth - flCounter.get() < urls.size())
+                            urls.remove(0);				
 		}
 		return null;
 	}
