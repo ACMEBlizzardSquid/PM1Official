@@ -13,7 +13,7 @@ import utils.io.StreamMonitor;
 public class Marfcat {
     
     String rootPath = getClass().getClassLoader().getResource(".").getPath();
-    String marfcatPath = rootPath + "marfcat/marfcat.jar";
+    String marfcatPath = rootPath + "marfcat.jar";
     String marfcatExec = "java -jar " + marfcatPath;
     
     /**

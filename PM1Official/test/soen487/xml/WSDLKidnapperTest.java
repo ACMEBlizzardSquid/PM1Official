@@ -1,4 +1,4 @@
-package test.soen487.xml;
+package soen487.xml;
 
 import java.util.ArrayList;
 import org.junit.After;
