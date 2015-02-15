@@ -19,4 +19,4 @@ hs_err_pid*
 # MARFCAT files
 *.stats
 *.gzbin
-*.ref
+*.refPM1Official/java.util.ArrayList.ref
