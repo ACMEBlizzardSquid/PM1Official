@@ -1,7 +1,10 @@
 package utils.marfcat;
+
+import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.lang.InterruptedException;
+import java.util.UUID;
 import utils.io.StreamMonitor;
 
 /**
@@ -12,9 +15,20 @@ import utils.io.StreamMonitor;
  */
 public class Marfcat {
     
-    String rootPath = getClass().getClassLoader().getResource(".").getPath();
-    String marfcatPath = rootPath + "marfcat.jar";
-    String marfcatExec = "java -jar " + marfcatPath;
+    String rootPath;        // the root application path
+    String marfcatPath;     // the path to the marfcat JAR
+    String marfcatExec;     // the command to execute the marfcat JAR
+    
+    /**
+     * Initializes the facade
+     * @throws IOException 
+     */
+    public Marfcat ()
+            throws IOException {
+        rootPath = new File(".").getCanonicalPath();
+        marfcatPath = rootPath + "/lib/marfcat/marfcat.jar";
+        marfcatExec = "java -jar " + marfcatPath;  
+    }
     
     /**
      * Trains MARFCAT on a supplied MARFCAT_IN file
@@ -40,11 +54,22 @@ public class Marfcat {
         process.waitFor();
     }
     
-    public void analyze (String inputFilePath)
+    /**
+     * Analyzes the MARFCAT_IN file and returns a path to the generated
+     * MARFCAT_OUT file.
+     * @param inputFilePath The path to the MARFCAT_IN file
+     * @return The path to the MARFCAT_OUT file
+     * @throws IOException
+     * @throws InterruptedException 
+     */
+    public String analyze (String inputFilePath)
             throws IOException, InterruptedException {
         
+        // generate UUID for file
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        
         // execute job
-        String options = " --batch-ident test-quick-marf-cve ";
+        String options = " --batch-ident " + uuid + " ";
         String options2 = " -nopreprep -raw -fft -cheb";
         Process process = Runtime.getRuntime().exec(marfcatExec + options + inputFilePath + options2);
         
@@ -59,6 +84,8 @@ public class Marfcat {
         // wait for process to finish
         process.waitFor();
         
+        // return path to output file
+        return rootPath + "/report-noprepreprawfftcheb-" + uuid + ".xml";
     }
     
 }

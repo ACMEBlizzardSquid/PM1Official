@@ -5,6 +5,7 @@
  */
 package utils.marfcat;
 
+import java.io.File;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,21 +43,24 @@ public class MarfcatTest {
 
     @Test
     public void test1() {
-        marf = new Marfcat();
         try {
+            marf = new Marfcat();
             marf.train("test/utils/marfcat/apache-tomcat-5.5.13-src_train.xml");
         } catch (Exception e) {
-            
+            fail();
         }
     }
     
     @Test
     public void test2() {
-        marf = new Marfcat();
         try {
-            marf.analyze("test/utils/marfcat/apache-tomcat-5.5.13-src_train.xml");
+            marf = new Marfcat();
+            String filepath = marf.analyze("test/utils/marfcat/apache-tomcat-5.5.13-src_train.xml");
+            File file = new File(filepath);
+            assertTrue(file.exists());
+            file.delete();
         } catch (Exception e) {
-            
+            fail();
         }
     }
 }
