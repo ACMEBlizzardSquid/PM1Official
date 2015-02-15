@@ -44,7 +44,7 @@ public class MarfcatTest {
     public void test1() {
         marf = new Marfcat();
         try {
-            marf.train("lib/marfcat/apache-tomcat-5.5.13-src_train.xml");
+            marf.train("test/utils/marfcat/apache-tomcat-5.5.13-src_train.xml");
         } catch (Exception e) {
             
         }
@@ -54,7 +54,7 @@ public class MarfcatTest {
     public void test2() {
         marf = new Marfcat();
         try {
-            marf.analyze("lib/marfcat/apache-tomcat-5.5.13-src_train.xml");
+            marf.analyze("test/utils/marfcat/apache-tomcat-5.5.13-src_train.xml");
         } catch (Exception e) {
             
         }
