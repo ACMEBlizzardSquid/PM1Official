@@ -9,7 +9,7 @@ public class WSDLRetrieveServiceTest {
 		WSDLRetrieveService service = new WSDLRetrieveService();
 		
 		try {
-			service.retrieveWSDLs(SEARCH_ROOT);
+			service.retrieveWSDLs(null);
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -158,8 +158,14 @@ public abstract class Parser extends RecursiveAction {
 		while(! isFollowingLinkLimitExceeded()){
 			try {
 				// FORK
-				List<String> delegatedSet = splitWork();
-				linkFollowed.addAndGet(this.urls.size()); // Speculating
+				List<String> delegatedSet = null;
+				synchronized(linkFollowed){
+					delegatedSet = splitWork();
+					final int remainingTasks = searchDepth - linkFollowed.get();
+					if(remainingTasks <= 0) break;
+					if(this.urls.size() > remainingTasks) this.urls = this.urls.subList(0, remainingTasks);
+					linkFollowed.addAndGet(this.urls.size()); // Speculating
+				}
 				if(delegatedSet != null && isForkingEnabled() && ! abort.get()){
 					this.clone()
 						.setSearchList(delegatedSet)
@@ -215,15 +221,17 @@ public abstract class Parser extends RecursiveAction {
 	}
 	
 	private List<String> splitWork(){
-		if(isMaster()){
-			List<String> delegatedSet = this.urls;
-			this.urls = new ArrayList<>();
-			return delegatedSet;
-		}
-		if(isForkingEnabled() && this.urls.size() > chunkSize){
-			List<String> delegatedSet = new ArrayList<>(this.urls.subList(chunkSize, this.urls.size()));
-			this.urls = this.urls.subList(0, chunkSize);
-			return delegatedSet;
+		if(isForkingEnabled()){
+			if(isMaster()){
+				List<String> delegatedSet = this.urls;
+				this.urls = new ArrayList<>();
+				return delegatedSet;
+			}
+			else if(this.urls.size() > chunkSize){
+				List<String> delegatedSet = new ArrayList<>(this.urls.subList(chunkSize, this.urls.size()));
+				this.urls = this.urls.subList(0, chunkSize);
+				return delegatedSet;
+			}
 		}
 		return null;
 	}
@@ -250,9 +258,7 @@ public abstract class Parser extends RecursiveAction {
 	}
 	
 	private boolean isFollowingLinkLimitExceeded(){
-		synchronized(linkFollowed){ // ?? WHY NO SYNCHRONIZE ARRG!!
 			return linkFollowed.get() > searchDepth;
-		}
 	}
 	
 	//--------------------------------------------

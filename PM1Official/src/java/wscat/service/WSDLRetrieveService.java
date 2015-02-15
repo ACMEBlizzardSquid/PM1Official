@@ -14,7 +14,7 @@ public class WSDLRetrieveService {
 	Therefore for downloading N WDSL, the limit is N + 1
 	*/
 	public static final int    DEFAULT_LIMIT = 1;
-	public static final String DEFAULT_URL   = "http://data.serviceplatform.org/wsdl_grabbing/";
+	public static final String DEFAULT_URL   = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/";
 	
 	public List<String> retrieveWSDLs(String pstrSeedURI) throws MalformedURLException{
 		return retrieveWSDLsS(pstrSeedURI, DEFAULT_LIMIT);

@@ -33,7 +33,6 @@ public class WSDLRetriever extends Parser {
 			NoSuchMethodException, SecurityException {
 		super(url);
 		this.wsdl        = new LinkedList<String>();
-		this.wsdlToParse = new LinkedList<String>();
 		this.wsdlDoc     = new LinkedList<WSDLDescription>();
 		this.limit       = new AtomicInteger(downloadLimit);
 	}
@@ -41,7 +40,6 @@ public class WSDLRetriever extends Parser {
 	public WSDLRetriever(WSDLRetriever os) {
 		super(os);
 		this.wsdl        = new LinkedList<String>();
-		this.wsdlToParse = new LinkedList<String>();
 		this.wsdlDoc     = new LinkedList<WSDLDescription>();
 		this.limit       = os.limit;
 	}
@@ -65,28 +63,11 @@ public class WSDLRetriever extends Parser {
 				e.printStackTrace();
 			}
 		}
-		else
-			getWSDLLinks(page);
 		return true;
 	}
 	
 	//--------------------------------------------
-	// HTML
-	
-	private void getWSDLLinks(String page){
-		final String wsdlRegex = "(http|https)://[-a-zA-Z0-9+&/?=~_:,.]*(\\.|\\?)(wsdl|WSDL)";
-		List<String> links = getLinks();
-		for (String link : links) {
-			if(Pattern.matches(wsdlRegex, link)){
-				wsdl.add(link);
-				wsdlToParse.add(link);
-			}
-		}
-	}
-	
-	//--------------------------------------------
 	// WSDL
-	
 	
 	/*
 	TODO: Getting all wsdl:documentation is not usefull
@@ -196,19 +177,25 @@ public class WSDLRetriever extends Parser {
 	
 	@Override
 	protected void parseLinks(URL origin, List<String> anchors) {
+		/*
+		Propagate search only to WSDL file. - subdirectory are ignored
+		*/
+		final String wsdlRegex = "(http|https)://[-a-zA-Z0-9+&/?=~_:,.]*(\\.|\\?)(wsdl|WSDL)";
 		for(ListIterator<String> it = anchors.listIterator(); it.hasNext(); ){
-			String link = it.next();		
-			if(! wsdlToParse.contains(link))
+			String link = it.next();
+			if(Pattern.matches(wsdlRegex, link) && ! wsdl.contains(link)){
+				wsdl.add(link);
+			}
+			else
 				it.remove();
 		}
 	}
-	
+
 	
 	private static final long serialVersionUID = 1L;
 	private AtomicInteger limit;
 	
 	private @Reduced List<String>          wsdl;
-	private List<String>                   wsdlToParse;
 	private @Reduced List<WSDLDescription> wsdlDoc;
 	
 	public class WSDLDescription {

@@ -20,7 +20,7 @@ public class ParserTest {
 			WSDLFinder parserTask = new WSDLFinder(SEARCH_ROOT);
 			
 			// Tweak performace -- GOOD CHOICE
-			parserTask.setChunkSize(5); // Granularity - maximum url for a single thread
+			//parserTask.setChunkSize(20); // Granularity - maximum url for a single thread
 			parserTask.setSearchDepth(200); // Limit - How many link to follow
 			//parserTask.setHistory(true);
 			
