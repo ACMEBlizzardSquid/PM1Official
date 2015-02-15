@@ -188,7 +188,7 @@ public class WSDLRetriever extends Parser {
 	// Filters
 	
 	@Override
-	protected void parseLinks(List<String> anchors) {
+	protected void parseLinks(URL origin, List<String> anchors) {
 		for(ListIterator<String> it = anchors.listIterator(); it.hasNext(); ){
 			String link = it.next();		
 			if(! wsdlToParse.contains(link))

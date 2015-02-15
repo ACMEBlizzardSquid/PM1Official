@@ -54,7 +54,7 @@ public class WSDLFinder extends Parser {
 	// Filters
 	
 	@Override
-	protected void parseLinks(List<String> anchors) {
+	protected void parseLinks(URL origin, List<String> anchors) {
 		for(ListIterator<String> it = anchors.listIterator(); it.hasNext(); ){
 			String link = it.next();	
 			// Remove common extensions
@@ -68,7 +68,7 @@ public class WSDLFinder extends Parser {
 				continue;
 			}
 			// Keep only children from the root search
-			if(! isChildOfRootSearch(link)){
+			if(! isChildOfRootSearch(origin, link)){
 				it.remove();
 				continue;
 			}
@@ -84,7 +84,7 @@ public class WSDLFinder extends Parser {
 		return link.startsWith(origin.getProtocol() + "://" + origin.getAuthority());
 	}
 	
-	protected boolean isChildOfRootSearch(String link){
+	protected boolean isChildOfRootSearch(URL origin, String link){
 		return link.startsWith(origin.getProtocol() + "://" + origin.getAuthority() + origin.getPath());
 	}
 }

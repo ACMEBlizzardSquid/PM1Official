@@ -11,10 +11,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +33,9 @@ public abstract class Parser extends RecursiveAction {
 		this.master           = null;
 		this.lock             = new AtomicInteger(0);
 		this.abort            = new AtomicBoolean(false);
-		this.flCounter        = new AtomicInteger(0);
+		this.linkFollowed     = new AtomicInteger(0);
+		this.history          = new Boolean(false);
+		this.historyBuffer    = null;
 		this.fields           = getReducedFields();
 		this.reduceCollection = getReduceMethod(Collection.class);
 		this.reduceMap        = getReduceMethod(Map.class);
@@ -49,7 +54,9 @@ public abstract class Parser extends RecursiveAction {
 		this.master           = p.master;
 		this.lock             = p.lock;
 		this.abort            = p.abort;
-		this.flCounter        = p.flCounter;
+		this.linkFollowed     = p.linkFollowed;
+		this.history          = p.history;
+		this.historyBuffer    = p.historyBuffer;
 		this.fields           = p.fields;
 		this.reduceCollection = p.reduceCollection;
 		this.reduceMap        = p.reduceMap;
@@ -91,7 +98,9 @@ public abstract class Parser extends RecursiveAction {
 		this.master           = (master.master == null)?master:master.master;
 		this.lock             = master.lock;
 		this.abort            = master.abort;
-		this.flCounter        = master.flCounter;
+		this.linkFollowed     = master.linkFollowed;
+		this.history          = master.history;
+		this.historyBuffer    = master.historyBuffer;
 		this.fields           = master.fields;
 		this.reduceCollection = master.reduceCollection;
 		this.reduceMap        = master.reduceMap;
@@ -103,9 +112,9 @@ public abstract class Parser extends RecursiveAction {
 	}
 	
 	private Field[] getReducedFields(){
-		List<Field> fields = new LinkedList<Field>();
+		List<Field> fields = new LinkedList<>();
 		
-		List<Class<?>> classes = new LinkedList<Class<?>>();
+		List<Class<?>> classes = new LinkedList<>();
 		Class<?> _class = this.getClass();
 		while(! _class.equals(RecursiveAction.class)){
 			classes.add(_class);
@@ -142,73 +151,53 @@ public abstract class Parser extends RecursiveAction {
 	// Forking
 	
 	@Override
-	protected void compute() {
-		boolean totalLinksUnderLimit = true;
-		
+	protected void compute() {		
 		// RESET
 		if(isMaster()) resetState();
 		
-		while(true){
-			try{
-				List<String> delegatedSet       = splitWork();
-				final int    delegatedSetSize   = (delegatedSet == null)?0:delegatedSet.size();
-				final int    linksExplored      = flCounter.addAndGet(urls.size()); // Blocking call - Speculating
+		while(! isFollowingLinkLimitExceeded()){
+			try {
 				// FORK
-				if(delegatedSet != null && ! isMaster()){
-					final int deltaLink = (searchDepth - linksExplored);
-					if(delegatedSetSize > deltaLink && deltaLink > 0 ) {
-						delegatedSet = delegatedSet.subList(0, deltaLink);
-						Parser remainWork = this.clone().setSearchList(delegatedSet).markAsChild(this.master);
-						remainWork.fork();
-					}
+				List<String> delegatedSet = splitWork();
+				linkFollowed.addAndGet(this.urls.size()); // Speculating
+				if(delegatedSet != null && isForkingEnabled() && ! abort.get()){
+					this.clone()
+						.setSearchList(delegatedSet)
+						.markAsChild(this)
+						.fork();
+					if(isMaster()) break; // Master plays the shared container
 				}
-				
+
 				// COMPUTE
 				parse();
-				parseLinks(links);
 				reduce();
 				
-				totalLinksUnderLimit = (delegatedSetSize + linksExplored) < searchDepth;
-				if(! links.isEmpty() && totalLinksUnderLimit && isForkingEnabled()){
-					final int deltaLink = flCounter.get() + delegatedSetSize + links.size() - searchDepth; // sync
-					//final int deltaLink = linksExplored + delegatedSetSize + links.size() - searchDepth; // nosync
-					
-					if(deltaLink > 0)
-						links = links.subList(0, 
-								(deltaLink >= links.size())?0:links.size() - deltaLink);
-					
-					Parser children = this.clone().setSearchList(links).markAsChild(this);
-					children.fork();
-				}
-			} catch(Exception e){
-				e.printStackTrace();
+				// UPDATE
+				this.urls  = this.links;
+				this.links = new LinkedList<>();
+				if(urls.isEmpty()) break;
+			} catch (IllegalAccessException ex) {
+				Logger.getLogger(Parser.class.getName()).log(Level.SEVERE, null, ex);
+			} catch (IllegalArgumentException ex) {
+				Logger.getLogger(Parser.class.getName()).log(Level.SEVERE, null, ex);
+			} catch (InvocationTargetException ex) {
+				Logger.getLogger(Parser.class.getName()).log(Level.SEVERE, null, ex);
 			}
-			
-			// SIGNAL TERMINATION
-			if(isMaster()){
-				if(isForkingEnabled()){
-					if(! links.isEmpty())
-						synchronized (lock) {
-							try {
-								lock.wait();
-							} catch (InterruptedException e) { e.printStackTrace(); }
-						}
-					break;
-				}
-				else{
-					if(! links.isEmpty() && totalLinksUnderLimit){
-						this.urls  = links;
-						this.links = new LinkedList<String>();
-					}
-					else
-						break;
+		}
+		
+		// WAIT TERMINATION
+		if(isMaster()){
+			synchronized(lock){
+				if(lock.get() != 0){
+					try { lock.wait(); }
+					catch (InterruptedException e) { e.printStackTrace(); }
 				}
 			}
-			else if(lock.decrementAndGet() == 0){
-				synchronized (lock) {
+		}
+		else{
+			synchronized(lock){
+				if(lock.decrementAndGet() == 0)
 					lock.notify();
-					break;
-				}
 			}
 		}
 	}
@@ -226,15 +215,15 @@ public abstract class Parser extends RecursiveAction {
 	}
 	
 	private List<String> splitWork(){
-		if(isForkingEnabled() && this.urls.size() > chunkSize){
-			List<String> delegatedSet = new ArrayList<String>();
-			while(this.urls.size() > chunkSize)
-				delegatedSet.add(this.urls.remove(0));
+		if(isMaster()){
+			List<String> delegatedSet = this.urls;
+			this.urls = new ArrayList<>();
 			return delegatedSet;
 		}
-		if(! isForkingEnabled()){
-                    while(searchDepth - flCounter.get() < urls.size())
-                            urls.remove(0);				
+		if(isForkingEnabled() && this.urls.size() > chunkSize){
+			List<String> delegatedSet = new ArrayList<>(this.urls.subList(chunkSize, this.urls.size()));
+			this.urls = this.urls.subList(0, chunkSize);
+			return delegatedSet;
 		}
 		return null;
 	}
@@ -248,8 +237,8 @@ public abstract class Parser extends RecursiveAction {
 	private void resetState() {
 		this.lock             = new AtomicInteger(0);
 		this.abort            = new AtomicBoolean(false);
-		this.flCounter        = new AtomicInteger(0);
-		this.links            = new LinkedList<String>();
+		this.linkFollowed     = new AtomicInteger(0);
+		this.links            = new LinkedList<>();
 	}
 	
 	private boolean isMaster(){
@@ -260,20 +249,35 @@ public abstract class Parser extends RecursiveAction {
 		return this.chunkSize != NO_FORK;
 	}
 	
+	private boolean isFollowingLinkLimitExceeded(){
+		synchronized(linkFollowed){ // ?? WHY NO SYNCHRONIZE ARRG!!
+			return linkFollowed.get() > searchDepth;
+		}
+	}
+	
 	//--------------------------------------------
 	// Parsing
 	
 	private void parse(){
 		for(String url : urls){
+			if(abort.get()){
+				abort();
+				break;
+			}
+			
 			try{
-				System.out.print('.'); // PRINTING DOT -- An HTTP Request has been made to 'url'
-				URL wpage = new URL(url);
-				String page = readPage(wpage);
-				getHyperlinks(wpage, page);
+				System.out.println("["+Thread.currentThread().getId()+"]LINK: "+url);
+				//System.out.print('.'); // PRINTING DOT -- An HTTP Request has been made to 'url'
+				URL wpage         = new URL(url);
+				String page       = readPage(wpage);
+				List<String> urls = getHyperlinks(wpage, page);
+				historyFilter();
 				if(! parsePage(wpage, page) || abort.get()){
 					abort();
 					break;
 				}
+				parseLinks(wpage, urls);
+				links.addAll(urls);
 			} catch (MalformedURLException e){
 				System.err.println("Unable to parse "+ e.getMessage());
 				continue;
@@ -294,8 +298,9 @@ public abstract class Parser extends RecursiveAction {
 		return sbuilder.toString();
 	}
 	
-	private void getHyperlinks(URL domain, String page){
-		Matcher matcher = Pattern.compile("href=\"([-a-zA-Z0-9+&/?=~_:,.]*)\"").matcher(page);
+	private List<String> getHyperlinks(URL domain, String page){
+		Matcher matcher     = Pattern.compile("href=\"([-a-zA-Z0-9+&/?=~_:,.]*)\"").matcher(page);
+		List<String> links  = new LinkedList<>();
 		while(matcher.find()){
 			String match = matcher.group(1);
 			if(! match.contains("://")){
@@ -306,6 +311,22 @@ public abstract class Parser extends RecursiveAction {
 					match = base + domain.getPath() + match;
 			}
 			links.add(match);
+		}
+		return links;
+	}
+	
+	private void historyFilter(){
+		if(history){
+			synchronized(history){
+				ListIterator<String> i = links.listIterator();
+				while(i.hasNext()) {
+					String link = i.next();
+					if(historyBuffer.contains(link))
+						i.remove();
+					else
+						historyBuffer.add(link);
+				}
+			}
 		}
 	}
 	
@@ -336,7 +357,7 @@ public abstract class Parser extends RecursiveAction {
 	 * 
 	 * @param anchors the list of all the hyperlinks found.
 	 */
-	protected abstract void parseLinks(List<String> anchors);
+	protected abstract void parseLinks(URL origin, List<String> anchors);
 	
 	//--------------------------------------------
 	// Introspect
@@ -347,7 +368,15 @@ public abstract class Parser extends RecursiveAction {
 	}
 	
 	public int getFollowedLinkCount(){
-		return flCounter.get();
+		return linkFollowed.get();
+	}
+	
+	public void setHistory(boolean value){
+		this.history       = value;
+		if(value)
+			this.historyBuffer = new ArrayList<>();
+		else
+			this.historyBuffer = null;
 	}
 	
 	//--------------------------------------------
@@ -384,11 +413,13 @@ public abstract class Parser extends RecursiveAction {
 	
 	private AtomicInteger      lock;
 	private AtomicBoolean      abort;
-	private AtomicInteger      flCounter;
+	private AtomicInteger      linkFollowed;
 	private Field[]            fields;
 	private Method             reduceCollection;
 	private Method             reduceMap;
 	private Parser             master;
+	private Boolean            history;
+	private List<String>       historyBuffer;
 	
 	private List<String> links;
 }
