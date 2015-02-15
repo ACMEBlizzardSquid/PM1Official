@@ -87,6 +87,13 @@ public class WSDLRetriever extends Parser {
 	//--------------------------------------------
 	// WSDL
 	
+	
+	/*
+	TODO: Getting all wsdl:documentation is not usefull
+	some of them describe methods but if there are any, there is one
+	for sure that describe the service. It's usually at the end, nested
+	in the node <wsdl:service>.
+	*/
 	// I'm assuming a well formatted WSDL, otherwise why bother.
 	protected void getDescriptors(String fileName, String page){
 		class WSDLDescriptionHandler extends DefaultHandler {
