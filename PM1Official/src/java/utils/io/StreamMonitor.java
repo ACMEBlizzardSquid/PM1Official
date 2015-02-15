@@ -16,6 +16,8 @@ public class StreamMonitor implements Runnable {
     
     final BufferedReader in;
     final PrintStream out;
+    boolean save = false;
+    StringBuilder output = new StringBuilder();
     
     /**
      * Initializes a new monitor for the input stream
@@ -42,13 +44,35 @@ public class StreamMonitor implements Runnable {
     }
     
     /**
+     * Sets whether the StreamMonitor should save output to a String.  The 
+     * output can be retrieved later using getOutput
+     * @param save If true, the StreamMonitor will save all output
+     */
+    public void setSave (boolean save) {
+        this.save = save;
+    }
+    
+    /**
+     * Retrieves the output in the StringBuilder
+     * @return The output from the stringbuilder
+     */
+    public String getOutput () {
+        return output.toString();
+    }
+    
+    /**
      * Runs the stream monitor
      */
     public void run () {
         try {
-            String line = null;
-            while ((line = in.readLine()) != null) {
-                out.println(line);
+            int ch;
+            char c;
+            while ((ch = in.read()) != -1) {
+                c = (char) ch; 
+                out.print(c);
+                if (save) {
+                    output.append(c);
+                }
             }
             in.close();
         } catch (IOException e) {
