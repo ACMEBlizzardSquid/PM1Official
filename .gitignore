@@ -20,3 +20,5 @@ hs_err_pid*
 *.stats
 *.gzbin
 *.refPM1Official/java.util.ArrayList.ref
+
+PM1Official/java.util.ArrayList.ref
