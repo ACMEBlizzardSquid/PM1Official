@@ -1,5 +1,0 @@
-# Apache mod_jk jk status tasks
-jkUpdate=org.apache.jk.status.JkStatusUpdateTask
-jkReset=org.apache.jk.status.JkStatusResetTask
-jkStatus=org.apache.jk.status.JkStatusTask
-

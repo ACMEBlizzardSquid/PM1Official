@@ -45,7 +45,7 @@ public class MarfcatTest {
     public void test1() {
         try {
             marf = new Marfcat();
-            marf.train("test/utils/marfcat/apache-tomcat-5.5.13-src_train.xml");
+            marf.train("test/utils/marfcat/train.xml");
         } catch (Exception e) {
             fail();
         }
@@ -55,7 +55,7 @@ public class MarfcatTest {
     public void test2() {
         try {
             marf = new Marfcat();
-            String filepath = marf.analyze("test/utils/marfcat/apache-tomcat-5.5.13-src_train.xml");
+            String filepath = marf.analyze("test/utils/marfcat/test.xml");
             File file = new File(filepath);
             assertTrue(file.exists());
             file.delete();

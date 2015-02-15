@@ -71,7 +71,8 @@ public class Marfcat {
         // execute job
         String options = " --batch-ident " + uuid + " ";
         String options2 = " -nopreprep -raw -fft -cheb";
-        Process process = Runtime.getRuntime().exec(marfcatExec + options + inputFilePath + options2);
+        String command = marfcatExec + options + inputFilePath + options2;
+        Process process = Runtime.getRuntime().exec(command);
         
         // redirect Marfcat output streams
         InputStream in = process.getInputStream();
