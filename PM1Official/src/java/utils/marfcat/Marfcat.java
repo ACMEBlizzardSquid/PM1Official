@@ -15,9 +15,11 @@ import utils.io.StreamMonitor;
  */
 public class Marfcat {
     
-    String rootPath;        // the root application path
-    String marfcatPath;     // the path to the marfcat JAR
-    String marfcatExec;     // the command to execute the marfcat JAR
+    public static final String MARFCAT_LIB = "/lib/marfcat";
+    
+    private String rootPath;        // the root application path
+    private String marfcatPath;     // the path to the marfcat JAR
+    private String marfcatExec;     // the command to execute the marfcat JAR
     
     /**
      * Initializes the facade
@@ -26,7 +28,7 @@ public class Marfcat {
     public Marfcat ()
             throws IOException {
         rootPath = new File(".").getCanonicalPath();
-        marfcatPath = rootPath + "/lib/marfcat/marfcat.jar";
+        marfcatPath = rootPath + MARFCAT_LIB + "/marfcat.jar";
         marfcatExec = "java -jar " + marfcatPath;  
     }
     
