@@ -11,7 +11,6 @@ public class WSDLRetrieveServiceTest {
 		try {
 			service.retrieveWSDLs(null);
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -30,19 +30,24 @@ public class XMLReaderTest {
 	
 	@Test @Ignore
 	public void readNN() {
+            //TODO: do test
 	}
 	
 	@Test @Ignore
 	public void readMARFCAT_IN() {
+            //TODO: do test
 	}
 	
 	@Test @Ignore
 	public void readMARFCAT_OUT() {
+            //TODO: do test
 	}
 	
 	@Test @Ignore
 	public void readWSDL() {
 		// TODO: Define skeleton classes for JAXB
+                // pretty much done, but I find the navigation thru the nodes really annoying with jaxb,
+                // I'm still looking for the best way to parse through the elements... see WSDL.java
 	}
 
 }
