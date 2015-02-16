@@ -6,11 +6,15 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.InterruptedException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import utils.io.StreamMonitor;
+import utils.marfcat.jaxb.DataSet;
+import utils.marfcat.jaxb.Description;
 
 /**
  * This class is used to generate a MARFCAT_IN file.
@@ -96,8 +100,51 @@ public class MarfcatIn {
      */
     public void write(String path) 
             throws FileNotFoundException, IOException, InterruptedException {
+        writeWithPrinttWriter(path);
         
-        // set up print writer
+    }
+	
+	/*
+	Alternative write using JAXB
+	*/
+	private void writeWithJAXB(String path) throws IOException, InterruptedException, JAXBException{
+		// get current date
+        Date date = new Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+		
+		// JAXB
+		DataSet marfcatIn = new DataSet();
+		marfcatIn.setGenerateBy("WSCAT");
+		marfcatIn.setGenerateOn(timestamp.toString());
+		marfcatIn.setDescription(new Description());
+		marfcatIn.getDescription().setFileTool(getFileUtilityVersion());
+		marfcatIn.getDescription().setFindTool(getFindUtilityVersion());
+		marfcatIn.getDescription().setMarfTool(getMarfUtilityVersion());
+		for(int i = 0; i < items.size(); i++) {
+			MarfcatInItem item = items.get(i);
+			utils.marfcat.jaxb.File file = new utils.marfcat.jaxb.File();
+			file.setId(i);
+			file.setPath(item.getPath());
+			file.setMeta(item.getType(), item.getLines(),
+				item.getWords(), item.getBytes());
+			file.setLocation(item.getCVE());
+			marfcatIn.addFile(file);
+		}
+		
+		// write to file
+		JAXBContext context = JAXBContext.newInstance(DataSet.class);
+		Marshaller  marsh   = context.createMarshaller();
+		marsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marsh.marshal(marfcatIn, new File(path));
+	}
+	
+	/*
+	Original write algorithm
+	*/
+	private void writeWithPrinttWriter(String path)
+			throws FileNotFoundException, IOException, InterruptedException{
+		
+		// set up print writer
         FileWriter fw = new FileWriter(path, false);
         BufferedWriter bw = new BufferedWriter(fw);
         PrintWriter out = new PrintWriter(bw);
@@ -148,5 +195,5 @@ public class MarfcatIn {
         // print closing tag
         out.println("</dataset>");
         out.close();
-    }
+	}
 }
