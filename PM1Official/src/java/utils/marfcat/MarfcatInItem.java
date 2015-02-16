@@ -44,6 +44,7 @@ public class MarfcatInItem {
         inMonitor = new StreamMonitor(process.getInputStream());
         inMonitor.setSave(true);
         inMonitor.run();
+        process.waitFor();
         String[] tmp = inMonitor.getOutput().split("[ ]+");
         lines = Integer.parseInt(tmp[1]);
         words = Integer.parseInt(tmp[2]);
