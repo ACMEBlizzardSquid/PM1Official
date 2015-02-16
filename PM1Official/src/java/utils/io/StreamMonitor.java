@@ -69,9 +69,10 @@ public class StreamMonitor implements Runnable {
             char c;
             while ((ch = in.read()) != -1) {
                 c = (char) ch; 
-                out.print(c);
                 if (save) {
                     output.append(c);
+                } else {
+                    out.print(c);
                 }
             }
             in.close();
