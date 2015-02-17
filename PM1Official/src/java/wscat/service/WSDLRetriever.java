@@ -22,6 +22,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import soen487.xml.WSDLParser;
 
 import wscat.parser.Parser;
 import wscat.parser.Reduced;
@@ -75,63 +76,11 @@ public class WSDLRetriever extends Parser {
 	*/
 	// I'm assuming a well formatted WSDL, otherwise why bother.
 	protected void getDescriptors(String fileName, String page){
-		class WSDLDescriptionHandler extends DefaultHandler {
-			boolean         capture;
-			StringBuilder   sb;
-			WSDLDescription doc;
-			
-			public WSDLDescriptionHandler(String fileName) { 
-				this.capture  = false;
-				this.sb       = new StringBuilder();
-				this.doc      = new WSDLDescription(fileName);
-				wsdlDoc.add(doc);
-			}
-			
-			@Override
-			public void startElement(String uri, String localName,
-					String qName, Attributes attributes) throws SAXException {
-				if(qName.equals("wsdl:documentation"))
-					capture = true;
-				else if(capture){
-					sb.append("<"+qName+" ");
-					for (int i = 0; i < attributes.getLength(); i++)
-						sb.append(attributes.getQName(i) + "=\""+attributes.getValue(i)+"\" ");
-					sb.append(">");
-				}
-			}
-			
-			@Override
-			public void endElement(String uri, String localName, String qName)
-					throws SAXException {
-				if(qName.equals("wsdl:documentation")){
-					capture = false;
-					doc.descriptions.add(sb.toString().trim());
-					sb.delete(0, sb.length());
-				}
-				else if(capture){
-					sb.append("</"+qName+">");
-				}
-			}
-			
-			@Override
-			public void characters(char[] ch, int start, int length)
-					throws SAXException {
-				sb.append(ch, start, length);
-			}
-		}
-		
-		
-		SAXParserFactory wsdlParserFactory = SAXParserFactory.newInstance();
-		try {
-			wsdlParserFactory.setNamespaceAware(true);
-			SAXParser wsdlParser = wsdlParserFactory.newSAXParser();
-			ByteArrayInputStream is = new ByteArrayInputStream(page.getBytes());
-			wsdlParser.parse(is, new WSDLDescriptionHandler(fileName));
-		} catch (ParserConfigurationException | SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+                WSDLDescription doc = new WSDLDescription(fileName);
+                StringBuilder sb = new StringBuilder();
+                WSDLParser wsdlParser = new WSDLParser(page);
+                doc.descriptions.add(wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation()));
+                wsdlDoc.add(doc);
 	}
 	
 	protected void saveInTmp(String page, String fileName) throws IOException{
