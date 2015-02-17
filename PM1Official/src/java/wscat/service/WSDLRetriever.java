@@ -137,6 +137,9 @@ public class WSDLRetriever extends Parser {
 	}
 	
 	protected void saveInTmp(String page, String fileName) throws IOException{
+                if(!Files.exists(Paths.get("/tmp"))){
+                    Files.createDirectory(Paths.get("/tmp"));
+                }
 		Files.write(Paths.get("/tmp", fileName), page.getBytes(), 
 				StandardOpenOption.CREATE,
 				StandardOpenOption.TRUNCATE_EXISTING, // Remove to detect collisions.
