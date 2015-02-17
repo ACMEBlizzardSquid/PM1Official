@@ -28,7 +28,7 @@ public class WSDLRetrieveService {
 		// Execution
 		WSDLRetriever parser;
 		try {
-			parser = new WSDLRetriever(pstrSeedURI, piLimit +1);
+			parser = new WSDLRetriever(pstrSeedURI, piLimit);
 			new ForkJoinPool().invoke(parser);
 			return parser.getWSDL();
 		} catch (NoSuchMethodException | SecurityException e) {

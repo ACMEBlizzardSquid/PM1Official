@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,14 +33,13 @@ public class WSDLRetriever extends Parser {
 		super(url);
 		this.wsdl        = new LinkedList<String>();
 		this.wsdlDoc     = new LinkedList<WSDLDescription>();
-		this.limit       = new AtomicInteger(downloadLimit);
+		setSearchDepth(downloadLimit + 1);
 	}
 
 	public WSDLRetriever(WSDLRetriever os) {
 		super(os);
 		this.wsdl        = new LinkedList<String>();
 		this.wsdlDoc     = new LinkedList<WSDLDescription>();
-		this.limit       = os.limit;
 	}
 	
 	@Override
@@ -171,10 +169,6 @@ public class WSDLRetriever extends Parser {
 		return this.wsdlDoc;
 	}
 	
-	public void setDownloadLimit(int limit){
-		this.limit.set(limit);
-	}
-	
 	//--------------------------------------------
 	// Filters
 	
@@ -196,7 +190,6 @@ public class WSDLRetriever extends Parser {
 
 	
 	private static final long serialVersionUID = 1L;
-	private AtomicInteger limit;
 	
 	private @Reduced List<String>          wsdl;
 	private @Reduced List<WSDLDescription> wsdlDoc;
