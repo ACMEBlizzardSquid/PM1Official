@@ -202,7 +202,7 @@ public class ProgrammableWebWSDLRetriever extends Parser {
 			MarfcatIn marf = new MarfcatIn();
 			ProgrammableWebWSDLRetriever parser = new ProgrammableWebWSDLRetriever(SEACH_ROOT);
 			parser.setChunkSize(10); // Enabling multithreading
-			parser.setSearchDepth(40); // Urls per thread
+			parser.setSearchDepth(400); // Urls per thread
 			new ForkJoinPool().invoke(parser);
 			ListIterator<String> wsdlIt     = parser.getWSDLURL().listIterator();
 			ListIterator<String> categoryIt = parser.getCategories().listIterator();
