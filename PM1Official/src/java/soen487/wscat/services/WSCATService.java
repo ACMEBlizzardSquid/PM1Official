@@ -18,6 +18,9 @@ public class WSCATService {
     //TODO: should return MarfcatOut
     @WebMethod(operationName = "submitWSDLToAnalyze")
     public void submitWSDLToAnalyze(@WebParam(name = "wsdlFile") File wsdlFile) {
+        //TODO: remove --debug ?
+        String[] args = {"--batch-ident", "test-quick-marf-cve marfcat-in.xml", "-nopreprep", "-raw", "-fft", "-cheb", "--debug"};
+        marf.apps.MARFCAT.MARFCATApp.main(args);
     }
 
     /*
