@@ -4,10 +4,13 @@ import java.net.MalformedURLException;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
-
 import javax.jws.WebService;
+
+import utils.marfcat.MarfcatIn;
+import utils.marfcat.MarfcatInItem;
 
 @WebService
 public class WSDLRetrieveService {
@@ -25,12 +28,17 @@ public class WSDLRetrieveService {
 		pstrSeedURI = (pstrSeedURI != null)?pstrSeedURI:DEFAULT_URL;
 		piLimit     = (piLimit > 0)?piLimit:DEFAULT_LIMIT;
 		
+		// Marfcat
+		MarfcatIn marf = new MarfcatIn();
+		
 		// Execution
 		WSDLRetriever parser;
 		try {
 			parser = new WSDLRetriever(pstrSeedURI, piLimit);
 			new ForkJoinPool().invoke(parser);
-                        parser.marf.append("MARFCAT_IN.xml");
+			for(MarfcatInItem item : parser.getWSDLDescription())
+				marf.addItem(item);
+			marf.append("MARFCAT_IN.xml");
 			return parser.getWSDL();
 		} catch (NoSuchMethodException | SecurityException | InterruptedException e) {
 			e.printStackTrace();

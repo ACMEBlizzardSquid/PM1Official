@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class WSDLRetrieveServiceTest {
 //	final static String SEARCH_ROOT = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/5-check.wsdl";
-	final static String SEARCH_ROOT = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/6-SnowReport.wsdl";
+	final static String SEARCH_ROOT = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/";
 	public static void main(String[] args) {
 		WSDLRetrieveService service = new WSDLRetrieveService();
 		

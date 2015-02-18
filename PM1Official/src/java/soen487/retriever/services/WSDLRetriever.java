@@ -33,22 +33,19 @@ import wscat.parser.Parser;
 import wscat.parser.Reduced;
 
 public class WSDLRetriever extends Parser {
-    
-        protected MarfcatIn marf;
 
 	public WSDLRetriever(String url, int downloadLimit) throws MalformedURLException,
 			NoSuchMethodException, SecurityException, IOException {
 		super(url);
 		this.wsdl        = new LinkedList<String>();
-		this.wsdlDoc     = new LinkedList<WSDLDescription>();
-                this.marf             = new MarfcatIn();
+		this.wsdlDoc     = new LinkedList<MarfcatInItem>();
 		setSearchDepth(downloadLimit + 1);
 	}
 
 	public WSDLRetriever(WSDLRetriever os) {
 		super(os);
 		this.wsdl        = new LinkedList<String>();
-		this.wsdlDoc     = new LinkedList<WSDLDescription>();
+		this.wsdlDoc     = new LinkedList<MarfcatInItem>();
 	}
 	
 	@Override
@@ -65,8 +62,7 @@ public class WSDLRetriever extends Parser {
 				System.out.println("Saving "+fileName+" in /tmp");
 				String savedPath = saveInTmp(page, fileName);
 				String description = getDescriptors(fileName, page);
-                                marf.addItem(new MarfcatInItem(savedPath));
-                                System.out.println();
+                wsdlDoc.add(new MarfcatInItem(savedPath, description));
 			} catch (IOException | InterruptedException e) {
 				System.err.println("File not saved");
 				e.printStackTrace();
@@ -86,19 +82,19 @@ public class WSDLRetriever extends Parser {
 	*/
 	// I'm assuming a well formatted WSDL, otherwise why bother.
 	protected String getDescriptors(String fileName, String page) {
-                WSDLDescription doc = new WSDLDescription(fileName);
-                StringBuilder sb = new StringBuilder();
-                WSDLParser wsdlParser = new WSDLParser(page);
-                doc.descriptions.add(wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation()));
-                wsdlDoc.add(doc);
-                return wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
+		WSDLParser wsdlParser = new WSDLParser(page);
+		String documentation = wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
+		if(documentation != null)
+			return documentation;
+		
+		return "";
 	}
 	
 	protected String saveInTmp(String page, String fileName) throws IOException{
-                if(!Files.exists(Paths.get("/tmp"))){
-                    Files.createDirectory(Paths.get("/tmp"));
-                }
-                Path path = Paths.get("/tmp", fileName);
+        if(!Files.exists(Paths.get("/tmp"))){
+            Files.createDirectory(Paths.get("/tmp"));
+        }
+        Path path = Paths.get("/tmp", fileName);
 		Files.write(path, page.getBytes(), 
 				StandardOpenOption.CREATE,
 				StandardOpenOption.TRUNCATE_EXISTING, // Remove to detect collisions.
@@ -127,7 +123,7 @@ public class WSDLRetriever extends Parser {
 		return this.wsdl;
 	}
 	
-	public List<WSDLDescription> getWSDLDescription(){
+	public List<MarfcatInItem> getWSDLDescription(){
 		return this.wsdlDoc;
 	}
 	
@@ -154,14 +150,5 @@ public class WSDLRetriever extends Parser {
 	private static final long serialVersionUID = 1L;
 	
 	private @Reduced List<String>          wsdl;
-	private @Reduced List<WSDLDescription> wsdlDoc;
-	
-	public class WSDLDescription {
-		public WSDLDescription(String fileName) {
-			this.fileName     = fileName;
-			this.descriptions = new LinkedList<String>();
-		}
-		public String       fileName;
-		public List<String> descriptions;
-	}
+	private @Reduced List<MarfcatInItem>   wsdlDoc;
 }
