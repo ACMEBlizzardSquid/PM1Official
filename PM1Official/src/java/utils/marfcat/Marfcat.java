@@ -57,6 +57,16 @@ public class Marfcat {
     }
     
     /**
+     * Generates a random temporary file path that is compatible with 
+     * marfcat.jar
+     * @return The file path
+     */
+    public String generatePath () {
+        String uuid = UUID.randomUUID().toString().replace("-", "");
+        return "/tmp/" + uuid;
+    }
+    
+    /**
      * Analyzes the MARFCAT_IN file and returns a path to the generated
      * MARFCAT_OUT file.
      * @param inputFilePath The path to the MARFCAT_IN file
