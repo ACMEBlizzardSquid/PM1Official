@@ -25,7 +25,6 @@ public class WSCATService {
 
     //TODO: should return MarfcatOut
     @WebMethod(operationName = "submitWSDLToAnalyze")
-<<<<<<< HEAD
     public String submitWSDLToAnalyze(@WebParam(name = "wsdlFile") String wsdlFile) 
             throws IOException, InterruptedException {
         String localPath = utils.io.FileDownloader.download(wsdlFile);
@@ -45,12 +44,6 @@ public class WSCATService {
         }
         br.close();
         return sb.toString();
-=======
-    public void submitWSDLToAnalyze(@WebParam(name = "wsdlFile") File wsdlFile) {
-        //TODO: remove --debug ?
-        String[] args = {"--batch-ident", "test-quick-marf-cve marfcat-in.xml", "-nopreprep", "-raw", "-fft", "-cheb", "--debug"};
-        marf.apps.MARFCAT.MARFCATApp.main(args);
->>>>>>> FETCH_HEAD
     }
 
     /*
