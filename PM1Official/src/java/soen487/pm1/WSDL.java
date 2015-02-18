@@ -64,7 +64,6 @@ public class WSDL {
             marshaller.marshal(definitions, baos);
             result = baos.toString("UTF-8");
             
-            //TODO: add pretty print
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

@@ -74,12 +74,10 @@ public class WSDLRetriever extends Parser {
 	//--------------------------------------------
 	// WSDL
 	
-	// TODO: Simon this returns an empty string even for 5-check.wsdl
-	// I'm falling back to a simple regex for the moment
 	protected String getDescriptors(String fileName, String page) {
-		//WSDLParser wsdlParser = new WSDLParser(page);
-		//String documentation = wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
-		String documentation = getDescriptorsREX(page);
+		WSDLParser wsdlParser = new WSDLParser(page);
+		String documentation = wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
+		//String documentation = getDescriptorsREX(page);
 		if(documentation != null)
 			return documentation;
 		
