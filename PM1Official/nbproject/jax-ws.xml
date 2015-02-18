@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jax-ws xmlns="http://www.netbeans.org/ns/jax-ws/1">
   <services>
-    <service name="WSDLRetrieveService">
-      <implementation-class>wscat.service.WSDLRetrieveService</implementation-class>
-    </service>
     <service name="EchoXMLReader">
       <implementation-class>soen487.xml.service.EchoXMLReader</implementation-class>
+    </service>
+    <service name="WSDLRetrieveService">
+      <implementation-class>soen487.retriever.services.WSDLRetrieveService</implementation-class>
+    </service>
+    <service name="WSCATService">
+      <implementation-class>soen487.wscat.services.WSCATService</implementation-class>
     </service>
   </services>
   <clients/>

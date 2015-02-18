@@ -46,6 +46,13 @@ public class File {
 		this.location.setMeta(m);
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof File)
+			return ((File) obj).id.equals(this.id);
+		return super.equals(obj);
+	}
+	
 	// Auto-generated
 
 	public Meta getMeta() {
@@ -79,6 +86,5 @@ public class File {
 	public void setPath(String path) {
 		this.path = path;
 	}
-
 	
 }

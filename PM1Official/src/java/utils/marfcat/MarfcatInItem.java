@@ -39,6 +39,9 @@ public class MarfcatInItem {
         type = inMonitor.getOutput().replaceAll("^.+: ", "").replaceAll("\n", "");
         
         // get word count info
+        // TODO: I get an error if the file is empty 0 0 0
+        // if it simple you can use the flag -l (lines), -c (bypes), -w (words)
+        // This error is generated from ProgrammableWebWSDLRetriever.java
         command = "wc " + path;
         process = Runtime.getRuntime().exec(command);
         inMonitor = new StreamMonitor(process.getInputStream());

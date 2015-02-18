@@ -9,7 +9,7 @@ public class WSCATServiceTest {
     public static void main(String[] args) throws IOException, InterruptedException {
         WSCATService wscatService = new WSCATService();
 
-        wscatService.submitWSDLRepo(null);
+        //wscatService.submitWSDLRepo(null);
         wscatService.submitWSDLToAnalyze(null);
     }
 }
