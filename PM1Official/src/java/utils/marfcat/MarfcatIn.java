@@ -3,7 +3,6 @@ package utils.marfcat;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,9 +11,14 @@ import java.io.RandomAccessFile;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+
 import utils.io.StreamMonitor;
 import utils.marfcat.jaxb.DataSet;
 import utils.marfcat.jaxb.Description;
@@ -69,12 +73,12 @@ public class MarfcatIn {
             throws IOException, InterruptedException {
         
         // get find utility version
-        Process process = Runtime.getRuntime().exec("find --version");
+        Process process = Runtime.getRuntime().exec("find --version ");
         StreamMonitor in = new StreamMonitor(process.getInputStream());
         in.setSave(true);
         in.run();
         process.waitFor();
-        return in.getOutput();
+        return in.getOutput().split("\n")[0]; // Removing Unwanted strings
     }
     
     /**
@@ -131,7 +135,7 @@ public class MarfcatIn {
               if (c != '"') {
                   buffer += c;
               } else {
-                  int id = Integer.parseInt(buffer);
+                  int id = Integer.parseInt(buffer); // TODO: I get an error when appending an existing file
                   if (id > highestId) {
                       highestId = id;
                   }
@@ -190,7 +194,43 @@ public class MarfcatIn {
         out.close();
     }
     
-    
+    // Fallback
+    // This is the JAXB equivalent to append
+    // it work fine except that I had to remove the "<http://..."
+    // that cames with find --version
+    public void appendWithJAXB(String path)
+    		throws FileNotFoundException, IOException, InterruptedException, JAXBException {
+        File file = new File(path);
+        if (!file.exists()) {
+            writeWithPrinttWriter(path);
+            return;
+        }
+        
+        // Unmarshalling
+        JAXBContext context  = JAXBContext.newInstance(DataSet.class);
+		Unmarshaller unmarsh = context.createUnmarshaller();
+		DataSet index        = (DataSet) unmarsh.unmarshal(file);
+		int highest = index.getFiles().get(index.getFiles().size() -1).getId();
+        
+		// Edit
+        List<utils.marfcat.jaxb.File> newSet = new LinkedList<>();
+        for(int i = 0; i < items.size(); i++) {
+			MarfcatInItem item = items.get(i);
+			utils.marfcat.jaxb.File fileNode = new utils.marfcat.jaxb.File();
+			fileNode.setId(i + highest +1);
+			fileNode.setPath(item.getPath());
+			fileNode.setMeta(item.getType(), item.getLines(),
+				item.getWords(), item.getBytes());
+			fileNode.setLocation(item.getCVE());
+			if(!index.getFiles().contains(fileNode))
+			index.addFile(fileNode);
+		}
+        
+        // Marshalling
+		Marshaller  marsh   = context.createMarshaller();
+		marsh.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		marsh.marshal(index, file);
+    }
 	
 	/*
 	Alternative write using JAXB

@@ -10,10 +10,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+
 import org.xmlsoap.schemas.wsdl.ObjectFactory;
 import org.xmlsoap.schemas.wsdl.TBinding;
 import org.xmlsoap.schemas.wsdl.TDefinitions;

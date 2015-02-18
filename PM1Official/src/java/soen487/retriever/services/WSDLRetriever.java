@@ -1,6 +1,5 @@
 package soen487.retriever.services;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -10,28 +9,28 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.lang.InterruptedException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.UUID;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import org.w3c.dom.Document;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 import soen487.xml.WSDLParser;
-import soen487.xml.XMLParser;
-import utils.marfcat.MarfcatIn;
 import utils.marfcat.MarfcatInItem;
-
 import wscat.parser.Parser;
 import wscat.parser.Reduced;
 
+
+/**
+ * This implamentation of the parser is optimized 
+ * to grab documentation from the wsdl:documentation node
+ * 
+ * This is used as a general parser and result effective
+ * against "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/"
+ * @author shake0
+ *
+ */
 public class WSDLRetriever extends Parser {
 
 	public WSDLRetriever(String url, int downloadLimit) throws MalformedURLException,
@@ -62,6 +61,7 @@ public class WSDLRetriever extends Parser {
 				System.out.println("Saving "+fileName+" in /tmp");
 				String savedPath = saveInTmp(page, fileName);
 				String description = getDescriptors(fileName, page);
+				System.out.println(description);
                 wsdlDoc.add(new MarfcatInItem(savedPath, description));
 			} catch (IOException | InterruptedException e) {
 				System.err.println("File not saved");
@@ -74,19 +74,24 @@ public class WSDLRetriever extends Parser {
 	//--------------------------------------------
 	// WSDL
 	
-	/*
-	TODO: Getting all wsdl:documentation is not usefull
-	some of them describe methods but if there are any, there is one
-	for sure that describe the service. It's usually at the end, nested
-	in the node <wsdl:service>.
-	*/
-	// I'm assuming a well formatted WSDL, otherwise why bother.
+	// TODO: Simon this returns an empty string even for 5-check.wsdl
+	// I'm falling back to a simple regex for the moment
 	protected String getDescriptors(String fileName, String page) {
-		WSDLParser wsdlParser = new WSDLParser(page);
-		String documentation = wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
+		//WSDLParser wsdlParser = new WSDLParser(page);
+		//String documentation = wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
+		String documentation = getDescriptorsREX(page);
 		if(documentation != null)
 			return documentation;
 		
+		return "";
+	}
+	
+	// Fallback wsdl:documentation grabber
+	private String getDescriptorsREX(String page){
+		String documentationRegex = "<wsdl:service .*>.*(<wsdl:doc.*>(.*)</wsdl:doc.*>).*</wsdl:service";
+		Matcher match = Pattern.compile(documentationRegex, Pattern.DOTALL).matcher(page);
+		if(match.find())
+			return match.group(2);
 		return "";
 	}
 	

@@ -8,10 +8,17 @@ import java.util.concurrent.ForkJoinPool;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.bind.JAXBException;
 
 import utils.marfcat.MarfcatIn;
 import utils.marfcat.MarfcatInItem;
 
+
+/**
+ * WSDLRetriever in WebService
+ * @author shake0
+ *
+ */
 @WebService
 public class WSDLRetrieveService {
 	/*
@@ -38,9 +45,11 @@ public class WSDLRetrieveService {
 			new ForkJoinPool().invoke(parser);
 			for(MarfcatInItem item : parser.getWSDLDescription())
 				marf.addItem(item);
-			marf.append("MARFCAT_IN.xml");
+			marf.appendWithJAXB("MARFCAT_IN.xml");
 			return parser.getWSDL();
 		} catch (NoSuchMethodException | SecurityException | InterruptedException e) {
+			e.printStackTrace();
+		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
 		return null;

@@ -1,9 +1,14 @@
 package soen487.retriever.services;
 
-import java.net.MalformedURLException;
-import java.util.LinkedList;
 import java.io.IOException;
+import java.util.LinkedList;
 
+
+/**
+ * This class is used to demo WSDLRetrieveService
+ * @author shake0
+ *
+ */
 public class WSDLRetrieveServiceTest {
 //	final static String SEARCH_ROOT = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/5-check.wsdl";
 	final static String SEARCH_ROOT = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/";
@@ -13,9 +18,9 @@ public class WSDLRetrieveServiceTest {
                 LinkedList<String> wsdls = new LinkedList<String>();
 		try {
 			wsdls = (LinkedList<String>) service.retrieveWSDLs(SEARCH_ROOT, 10);
-                        for (String string : wsdls) {
-                            System.out.println(string);
-                        }
+	        for (String string : wsdls) {
+	            System.out.println(string);
+	        }
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
