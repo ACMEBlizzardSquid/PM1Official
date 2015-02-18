@@ -13,6 +13,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import soen487.xml.XMLReader;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.w3c.dom.Document;
 
 /**
@@ -46,6 +48,19 @@ public class WSDLTest {
             File file = new File("test/utils/wsdl/test.xml");
             Document dom = XMLReader.readAsDOM(file);
             String docs = WSDL.getDocumentation(dom);
+            assertEquals(docs, "This is the documentation");
+        } catch (Exception e) {
+            fail();
+        }
+    }
+    
+    @Test
+    public void getDocumentationString () {
+        try {
+            byte[] encoded = Files.readAllBytes(Paths.get("test/utils/wsdl/test.xml"));
+            String xml = new String(encoded);
+            System.out.println(xml);
+            String docs = WSDL.getDocumentation(xml);
             assertEquals(docs, "This is the documentation");
         } catch (Exception e) {
             fail();

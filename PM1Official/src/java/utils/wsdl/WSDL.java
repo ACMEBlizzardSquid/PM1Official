@@ -20,7 +20,7 @@ public class WSDL {
     /**
      * Returns the documentation contents from a WSDL document;
      * @param doc A WSDL document
-     * @return The contents of the documentation nodes
+     * @return The contents of the service documentation node
      */
     public static String getDocumentation (Document doc) {
         String documentation = "";
@@ -39,5 +39,15 @@ public class WSDL {
         }
         
         return documentation;
+    }
+    
+    /**
+     * Returns the documentation contents from a string which represents a WSDL
+     * document
+     * @param doc A string representation of the WSDL document
+     * @return The contents of the service documentation node
+     */
+    public static String getDocumentation (String doc) {
+        return getDocumentation(soen487.xml.XMLParser.parseDOM(doc));
     }
 }
