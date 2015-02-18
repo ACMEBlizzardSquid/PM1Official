@@ -1,4 +1,4 @@
-package wscat.service;
+package soen487.retriever.services;
 
 import java.net.MalformedURLException;
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ public class WSDLRetrieveServiceTest {
 		
                 LinkedList<String> wsdls = new LinkedList<String>();
 		try {
-			wsdls = (LinkedList<String>) service.retrieveWSDLs(null);
+			wsdls = (LinkedList<String>) service.retrieveWSDLs(null, null);
                         for (String string : wsdls) {
                             System.out.println(string);
                         }

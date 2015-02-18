@@ -1,4 +1,4 @@
-package wscat.service;
+package soen487.retriever.services;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package wscat.service;
+package soen487.wscat.services;
 
 import java.net.MalformedURLException;
 import java.util.LinkedList;
