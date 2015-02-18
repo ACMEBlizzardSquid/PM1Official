@@ -155,16 +155,17 @@ public class ProgrammableWebWSDLRetriever extends Parser {
 	//--------------------------------------------
 	// Downloading
 	
-	protected static void download(String url, String filename) throws IOException{
+	protected static boolean download(String url, String filename) throws IOException{
 		URL www = new URL(url);
 		FileOutputStream fos = new FileOutputStream(filename);
 		InputStream is = null;
 		try{
 			is = www.openStream();
-		} catch(IOException e){ System.err.println(e.getLocalizedMessage()); return; } //URL connections problem
+		} catch(IOException e){ System.err.println(e.getLocalizedMessage()); return false; } //URL connections problem
 		int ic = 0;
 		while((ic = is.read()) != -1)
 			fos.write(ic);
+		return true;
 	}
 	
 	private static String generateFileName(String name){
@@ -210,8 +211,8 @@ public class ProgrammableWebWSDLRetriever extends Parser {
 				String cate     = categoryIt.next();
 				String filename = generateFileName(wsdl);
 				String absPath  = downloadpath + "/" + filename;
-				download(wsdl, downloadpath + "/" + filename);
-				marf.addItem(new MarfcatInItem(absPath, cate));
+				if(download(wsdl, downloadpath + "/" + filename))
+					marf.addItem(new MarfcatInItem(absPath, cate));
 			}
 			marf.appendWithJAXB(marfpath);
 		} catch (MalformedURLException e) {
