@@ -75,9 +75,9 @@ public class WSDLRetriever extends Parser {
 	// WSDL
 	
 	protected String getDescriptors(String fileName, String page) {
-		WSDLParser wsdlParser = new WSDLParser(page);
-		String documentation = wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
-		//String documentation = getDescriptorsREX(page);
+		//WSDLParser wsdlParser = new WSDLParser(page);
+		//String documentation = wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
+		String documentation = getDescriptorsREX(page);
 		if(documentation != null)
 			return documentation;
 		
