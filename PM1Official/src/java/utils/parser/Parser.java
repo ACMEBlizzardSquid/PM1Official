@@ -1,4 +1,4 @@
-package wscat.parser;
+package utils.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,11 +16,23 @@ import java.util.Map;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parser thread
+ * 
+ * This object act as a Runnable implementation for the 
+ * Java forkjoin framework. Among the many (not implemented) features
+ * includes multithreading which involve synchronization and 
+ * shared objects (@Reduced).
+ * 
+ * This program contains material that may be disturbing to some viewers. 
+ * Viewer discretion is advised.
+ * 
+ * @author shake0
+ *
+ */
 public abstract class Parser extends RecursiveAction {
 	private static final long serialVersionUID = 1L;
 
@@ -183,11 +195,11 @@ public abstract class Parser extends RecursiveAction {
 				this.links = new LinkedList<>();
 				if(urls.isEmpty()) break;
 			} catch (IllegalAccessException ex) {
-				Logger.getLogger(Parser.class.getName()).log(Level.SEVERE, null, ex);
+				System.err.println(ex.getLocalizedMessage());
 			} catch (IllegalArgumentException ex) {
-				Logger.getLogger(Parser.class.getName()).log(Level.SEVERE, null, ex);
+				System.err.println(ex.getLocalizedMessage());
 			} catch (InvocationTargetException ex) {
-				Logger.getLogger(Parser.class.getName()).log(Level.SEVERE, null, ex);
+				System.err.println(ex.getLocalizedMessage());
 			}
 		}
 		
@@ -383,6 +395,14 @@ public abstract class Parser extends RecursiveAction {
 			this.historyBuffer = new ArrayList<>();
 		else
 			this.historyBuffer = null;
+	}
+	
+	public int getChunkSize(){
+		return this.chunkSize;
+	}
+	
+	public int getSearchDepth(){
+		return this.searchDepth;
 	}
 	
 	//--------------------------------------------

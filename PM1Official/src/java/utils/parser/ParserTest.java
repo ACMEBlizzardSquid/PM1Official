@@ -1,4 +1,4 @@
-package wscat.parser;
+package utils.parser;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.ForkJoinPool;

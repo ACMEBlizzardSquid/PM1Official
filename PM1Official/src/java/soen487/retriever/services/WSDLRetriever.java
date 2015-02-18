@@ -18,8 +18,8 @@ import java.util.regex.Pattern;
 
 import soen487.xml.WSDLParser;
 import utils.marfcat.MarfcatInItem;
-import wscat.parser.Parser;
-import wscat.parser.Reduced;
+import utils.parser.Parser;
+import utils.parser.Reduced;
 
 
 /**
