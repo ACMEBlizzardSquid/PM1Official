@@ -2,15 +2,20 @@ package soen487.wscat.services;
 
 import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
-import utils.marfcat.MarfcatIn;
+import org.xml.sax.SAXException;
 import soen487.retriever.services.client.*;
+import utils.marfcat.MarfcatIn;
 
 @WebService
 public class WSCATService {
@@ -47,11 +52,26 @@ public class WSCATService {
     /*
     Can train on a file OR a file from URI
     */
-    public void trainOnFile(@WebParam(name = "wsdlFile") File wsdlFile, @WebParam(name = "wsdlURI") URI wsdlURI) {
-        trainOnFile(new DocumentImpl());
+    public void trainOnFile(@WebParam(name = "wsdlFile") File wsdlFile, @WebParam(name = "wsdlURI") URI wsdlURI) throws ParserConfigurationException, SAXException, IOException {
+        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+        Document wsdlDoc = null;
+        
+        if(wsdlFile != null) {
+            wsdlDoc = docBuilder.parse(wsdlFile);
+        } else if(wsdlURI != null) {
+            wsdlDoc = docBuilder.parse(wsdlURI.toString());
+        }
+        
+        trainOnFile(wsdlDoc);
     }
 
     private void trainOnFile(Document doc) {
-
+        //TODO: remove --debug ?
+        
+        //TODO: doc to marfcat-in.xml file
+        
+        String[] args = {"--train", "-nopreprep", "-raw", "-fft", "-eucl marfcat-in.xml", "--debug"};
+        marf.apps.MARFCAT.MARFCATApp.main(args);
     }
 }
