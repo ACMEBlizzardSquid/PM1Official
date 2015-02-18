@@ -1,6 +1,7 @@
 package soen487.retriever.services;
 
 import java.net.MalformedURLException;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import javax.jws.WebMethod;
@@ -19,7 +20,7 @@ public class WSDLRetrieveService {
 	public static final String DEFAULT_URL   = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/";
 	
         @WebMethod(operationName = "retrieveWSDLs")
-	public List<String> retrieveWSDLs(@WebParam(name = "wsdlURI") String pstrSeedURI, @WebParam(name = "limit") Integer piLimit) throws MalformedURLException{
+	public List<String> retrieveWSDLs(@WebParam(name = "wsdlURI") String pstrSeedURI, @WebParam(name = "limit") Integer piLimit) throws MalformedURLException, IOException {
 		// Input validation
 		pstrSeedURI = (pstrSeedURI != null)?pstrSeedURI:DEFAULT_URL;
 		piLimit     = (piLimit > 0)?piLimit:DEFAULT_LIMIT;
@@ -29,8 +30,9 @@ public class WSDLRetrieveService {
 		try {
 			parser = new WSDLRetriever(pstrSeedURI, piLimit);
 			new ForkJoinPool().invoke(parser);
+                        parser.marf.append("MARFCAT_IN.xml");
 			return parser.getWSDL();
-		} catch (NoSuchMethodException | SecurityException e) {
+		} catch (NoSuchMethodException | SecurityException | InterruptedException e) {
 			e.printStackTrace();
 		}
 		return null;

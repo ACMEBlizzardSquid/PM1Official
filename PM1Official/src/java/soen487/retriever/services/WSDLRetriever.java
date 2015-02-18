@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.lang.InterruptedException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -18,22 +20,28 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
+import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import soen487.xml.WSDLParser;
+import soen487.xml.XMLParser;
+import utils.marfcat.MarfcatIn;
+import utils.marfcat.MarfcatInItem;
 
 import wscat.parser.Parser;
 import wscat.parser.Reduced;
 
 public class WSDLRetriever extends Parser {
+    
+        protected MarfcatIn marf;
 
 	public WSDLRetriever(String url, int downloadLimit) throws MalformedURLException,
-			NoSuchMethodException, SecurityException {
+			NoSuchMethodException, SecurityException, IOException {
 		super(url);
 		this.wsdl        = new LinkedList<String>();
 		this.wsdlDoc     = new LinkedList<WSDLDescription>();
+                this.marf             = new MarfcatIn();
 		setSearchDepth(downloadLimit + 1);
 	}
 
@@ -55,9 +63,11 @@ public class WSDLRetriever extends Parser {
 			try {
 				String fileName = generateFileName(domain.toString());
 				System.out.println("Saving "+fileName+" in /tmp");
-				saveInTmp(page, fileName);
-				getDescriptors(fileName, page);
-			} catch (IOException e) {
+				String savedPath = saveInTmp(page, fileName);
+				String description = getDescriptors(fileName, page);
+                                marf.addItem(new MarfcatInItem(savedPath));
+                                System.out.println();
+			} catch (IOException | InterruptedException e) {
 				System.err.println("File not saved");
 				e.printStackTrace();
 			}
@@ -75,22 +85,25 @@ public class WSDLRetriever extends Parser {
 	in the node <wsdl:service>.
 	*/
 	// I'm assuming a well formatted WSDL, otherwise why bother.
-	protected void getDescriptors(String fileName, String page){
+	protected String getDescriptors(String fileName, String page) {
                 WSDLDescription doc = new WSDLDescription(fileName);
                 StringBuilder sb = new StringBuilder();
                 WSDLParser wsdlParser = new WSDLParser(page);
                 doc.descriptions.add(wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation()));
                 wsdlDoc.add(doc);
+                return wsdlParser.printDocumentation(wsdlParser.getServiceDocumentation());
 	}
 	
-	protected void saveInTmp(String page, String fileName) throws IOException{
+	protected String saveInTmp(String page, String fileName) throws IOException{
                 if(!Files.exists(Paths.get("/tmp"))){
                     Files.createDirectory(Paths.get("/tmp"));
                 }
-		Files.write(Paths.get("/tmp", fileName), page.getBytes(), 
+                Path path = Paths.get("/tmp", fileName);
+		Files.write(path, page.getBytes(), 
 				StandardOpenOption.CREATE,
 				StandardOpenOption.TRUNCATE_EXISTING, // Remove to detect collisions.
 				StandardOpenOption.WRITE);
+                return path.toString();
 	}
 	
 	protected String generateFileName(String name){

@@ -5,9 +5,16 @@
  */
 package soen487.xml;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -43,4 +50,15 @@ public class XMLParser {
         return doc_string;
     }
     
+    public static Document parseDOM(String xml) {
+        try {
+            DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
+            fac.setNamespaceAware(true);
+            DocumentBuilder builder = fac.newDocumentBuilder();
+            return builder.parse(new ByteArrayInputStream(xml.getBytes()));
+        } catch (Exception e) {
+            // cry
+        }
+        return null;
+    }
 }
