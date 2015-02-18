@@ -32,6 +32,7 @@ import org.xmlsoap.schemas.wsdl.TService;
 import org.xmlsoap.schemas.wsdl.TTypes;
 import soen487.xml.WSDLParser;
 import soen487.xml.XMLParser;
+import soen487.xml.XMLReader;
 
 /**
  *
@@ -40,9 +41,13 @@ import soen487.xml.XMLParser;
 public class WSDL {
     
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException{
-        //String result = getWSDL("http://users.encs.concordia.ca/~s487_4/examples/soap/faultmessage/faultSample.wsdl");
-        String result = getWSDL("http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/5-check.wsdl");
+        
+        Document doc = XMLReader.readAsDOM("http://users.encs.concordia.ca/~s487_4/examples/soap/faultmessage/faultSample.wsdl");
+        String result = XMLParser.prettyPrint(doc.getDocumentElement());
         System.out.println(result);
+//        String result = getWSDL("http://users.encs.concordia.ca/~s487_4/examples/soap/faultmessage/faultSample.wsdl");
+//        String result = getWSDL("http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/5-check.wsdl");
+//        System.out.println(result);
     }
     
     public static String getWSDL(String url)  throws ParserConfigurationException, SAXException, IOException{
