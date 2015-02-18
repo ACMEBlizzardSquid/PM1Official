@@ -2,10 +2,13 @@ package utils.marfcat;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -103,6 +106,91 @@ public class MarfcatIn {
         writeWithPrinttWriter(path);
         
     }
+    
+    
+    public void append(String path) 
+            throws FileNotFoundException, IOException, InterruptedException {
+        File file = new File(path);
+        if (!file.exists()) {
+            writeWithPrinttWriter(path);
+            return;
+        }
+        FileInputStream stream = new FileInputStream(file);
+        char c;
+        int i;
+        String idMatch = "<file id=\"";
+        int idMatchInt = 0;
+        String endMatch = "</dataset>";
+        int endMatchInt = 0;
+        String buffer = "";
+        int highestId = -1;
+        boolean readId = false;
+        while ((i = stream.read()) != -1) {
+          c = (char) i;
+          if (readId) {
+              if (c != '"') {
+                  buffer += c;
+              } else {
+                  int id = Integer.parseInt(buffer);
+                  if (id > highestId) {
+                      highestId = id;
+                  }
+                  readId = false;
+                  idMatchInt = 0;
+              }
+          } else if (c == idMatch.charAt(idMatchInt)) {
+              idMatchInt += 1;
+              if (idMatchInt == idMatch.length()) {
+                  readId = true;
+              }
+          } else {
+              idMatchInt = 0;
+          }
+        }
+        stream.close();
+        
+        RandomAccessFile f = new RandomAccessFile(file, "rw");
+        long length = f.length() - 1;
+        byte b;
+        do {                     
+          length -= 1;
+          f.seek(length);
+          b = f.readByte();
+        } while(b != 10);
+        f.setLength(length+1);
+        
+        FileWriter fw = new FileWriter(path, true);
+        BufferedWriter bw = new BufferedWriter(fw);
+        PrintWriter out = new PrintWriter(bw);
+        int id;
+        
+        for(i = 0; i < items.size(); i++) {
+            id = i + highestId + 1;
+            MarfcatInItem item = items.get(i);
+            out.println("  <file id=\"" + id + "\" path=\"" + item.getPath() + "\">");
+            out.println("    <meta>");
+            out.println("      <type>" + item.getType() + "</type>");
+            out.println("      <length lines=\"" + item.getLines() + "\" words=\"" 
+                    + item.getWords() + "\" bytes=\"" 
+                    + item.getBytes() + "\" />");
+            out.println("    </meta>");
+            out.println("    <location line=\"\" fraglines=\"\">");
+            out.println("      <meta>");
+            out.println("        <cve>\"" + item.getCVE() + "\"</cve>");
+            out.println("        <name cweid=\"\"></name>");
+            out.println("      </meta>");
+            out.println("      <fragment>");
+            out.println("      </fragment>");
+            out.println("      <explanation>");
+            out.println("      </explanation>");
+            out.println("    </location>");
+            out.println("  </file>");
+        }
+        out.println("</dataset>");
+        out.close();
+    }
+    
+    
 	
 	/*
 	Alternative write using JAXB
@@ -195,5 +283,5 @@ public class MarfcatIn {
         // print closing tag
         out.println("</dataset>");
         out.close();
-	}
+    }
 }
