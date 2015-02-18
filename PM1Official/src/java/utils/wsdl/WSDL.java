@@ -1,0 +1,43 @@
+package utils.wsdl;
+
+import java.io.StringWriter;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Node;
+
+/**
+ * This class will provide functionality for WSDL documents
+ * @author connorbode
+ */
+public class WSDL {
+    
+    /**
+     * Returns the documentation contents from a WSDL document;
+     * @param doc A WSDL document
+     * @return The contents of the documentation nodes
+     */
+    public static String getDocumentation (Document doc) {
+        String documentation = "";
+        NodeList nodes = doc.getElementsByTagNameNS("http://schemas.xmlsoap.org/wsdl/", "service");
+        
+        for (int i = 0; i < nodes.getLength(); i += 1) {
+            Node node = nodes.item(i);
+            Element elem = (Element) node;
+            NodeList otherNodes = elem.getElementsByTagNameNS("*", "documentation");
+            
+            for (int j = 0; j < otherNodes.getLength(); j += 1) {
+                Node otherNode = otherNodes.item(j);
+                Element otherElem = (Element) otherNode;
+                documentation += otherElem.getTextContent();
+            }
+        }
+        
+        return documentation;
+    }
+}
