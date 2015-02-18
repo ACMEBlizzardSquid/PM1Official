@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.InterruptedException;
 import java.util.UUID;
 import utils.io.StreamMonitor;
+import marf.util.MARFException;
 
 /**
  * MARFCAT
@@ -15,11 +16,9 @@ import utils.io.StreamMonitor;
  */
 public class Marfcat {
     
-    public static final String MARFCAT_LIB = "/lib/marfcat";
+    public static final String MARFCAT_LIB = "/WEB-INF/lib";
     
     private String rootPath;        // the root application path
-    private String marfcatPath;     // the path to the marfcat JAR
-    private String marfcatExec;     // the command to execute the marfcat JAR
     
     /**
      * Initializes the facade
@@ -27,9 +26,6 @@ public class Marfcat {
      */
     public Marfcat ()
             throws IOException {
-        rootPath = new File(".").getCanonicalPath();
-        marfcatPath = rootPath + MARFCAT_LIB + "/marfcat.jar";
-        marfcatExec = "java -jar " + marfcatPath;  
     }
     
     /**
@@ -41,19 +37,19 @@ public class Marfcat {
             throws IOException, InterruptedException {
         
         // execute job
-        String options = " --train -nopreprep -raw -fft -eucl ";
-        Process process = Runtime.getRuntime().exec(marfcatExec + options + inputFilePath);
-        
-        // redirect Marfcat output streams
-        InputStream in = process.getInputStream();
-        InputStream err = process.getErrorStream();
-        StreamMonitor inMonitor = new StreamMonitor(in);
-        StreamMonitor errMonitor = new StreamMonitor(err, true);
-        inMonitor.run();
-        errMonitor.run();
-        
-        // wait for process to finish
-        process.waitFor();
+        String[] options = {
+            "--train",
+            "-nopreprep",
+            "-raw",
+            "-fft",
+            "-eucl",
+            inputFilePath
+        };
+        try {
+            marf.apps.MARFCAT.MARFCATApp.main(options);
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
     }
     
     /**
@@ -61,7 +57,7 @@ public class Marfcat {
      * marfcat.jar
      * @return The file path
      */
-    public String generatePath () {
+    public static String generatePath () {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         return "/tmp/" + uuid;
     }
@@ -81,24 +77,35 @@ public class Marfcat {
         String uuid = UUID.randomUUID().toString().replace("-", "");
         
         // execute job
-        String options = " --batch-ident " + uuid + " ";
-        String options2 = " -nopreprep -raw -fft -cheb";
-        String command = marfcatExec + options + inputFilePath + options2;
-        Process process = Runtime.getRuntime().exec(command);
+        String[] options = {
+            "--batch-ident",
+            uuid,
+            inputFilePath,
+            "-nopreprep",
+            "-raw",
+            "-fft",
+            "-cheb"
+        };
+        try {
+            marf.apps.MARFCAT.MARFCATApp.main(options);
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+//        Process process = Runtime.getRuntime().exec(command);
         
         // redirect Marfcat output streams
-        InputStream in = process.getInputStream();
-        InputStream err = process.getErrorStream();
-        StreamMonitor inMonitor = new StreamMonitor(in);
-        StreamMonitor errMonitor = new StreamMonitor(err, true);
-        inMonitor.run();
-        errMonitor.run();
-        
-        // wait for process to finish
-        process.waitFor();
+//        InputStream in = process.getInputStream();
+//        InputStream err = process.getErrorStream();
+//        StreamMonitor inMonitor = new StreamMonitor(in);
+//        StreamMonitor errMonitor = new StreamMonitor(err, true);
+//        inMonitor.run();
+//        errMonitor.run();
+//        
+//        // wait for process to finish
+//        process.waitFor();
         
         // return path to output file
-        return rootPath + "/report-noprepreprawfftcheb-" + uuid + ".xml";
+        String filePath = rootPath + "/report-noprepreprawfftcheb-" + uuid + ".xml";
+        return filePath;
     }
-    
 }
