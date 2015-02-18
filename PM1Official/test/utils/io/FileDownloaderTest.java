@@ -6,6 +6,8 @@
 package utils.io;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,11 +43,13 @@ public class FileDownloaderTest {
     @Test
     public void createsFile() {
         try {
-            File file = new File("test/utils/io/test.xml");
-            String path = FileDownloader.download(file);
-            File newFile = new File(path);
-            assertTrue(newFile.exists());
-            newFile.delete();
+            String path = FileDownloader.download("test");
+            File file = new File(path);
+            assertTrue(file.exists());
+            byte[] encoded = Files.readAllBytes(Paths.get(path));
+            String saved = new String(encoded);
+            assertEquals(saved, "test");
+            file.delete();
         } catch (Exception e) {
             fail();
         }
