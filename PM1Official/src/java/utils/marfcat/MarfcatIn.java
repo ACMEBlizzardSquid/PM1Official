@@ -100,10 +100,27 @@ public class MarfcatIn {
     }
     
     
+    /**
+     * Writes the MARFCAT_IN file to a randomly generated path
+     * @return The path to the new MARFCAT_IN file
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InterruptedException 
+     */
+    public String write () 
+        throws FileNotFoundException, IOException, InterruptedException {
+        String location = Marfcat.generatePath();
+        write(location);
+        return location;
+    }
+    
     
     /**
      * Writes the MARFCAT_IN file to the path provided
      * @param path The path to write the MARFCAT_IN file to
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InterruptedException 
      */
     public void write(String path) 
             throws FileNotFoundException, IOException, InterruptedException {
@@ -111,7 +128,14 @@ public class MarfcatIn {
         
     }
     
-    
+    /**
+     * Writes to the MARFCAT_IN file at the provided path.  If the file exists,
+     * it is appended to.  Otherwise, it is created.
+     * @param path The path to write to
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws InterruptedException 
+     */
     public void append(String path) 
             throws FileNotFoundException, IOException, InterruptedException {
         File file = new File(path);
@@ -124,8 +148,6 @@ public class MarfcatIn {
         int i;
         String idMatch = "<file id=\"";
         int idMatchInt = 0;
-        String endMatch = "</dataset>";
-        int endMatchInt = 0;
         String buffer = "";
         int highestId = -1;
         boolean readId = false;
@@ -139,6 +161,7 @@ public class MarfcatIn {
                   if (id > highestId) {
                       highestId = id;
                   }
+                  buffer = "";
                   readId = false;
                   idMatchInt = 0;
               }
