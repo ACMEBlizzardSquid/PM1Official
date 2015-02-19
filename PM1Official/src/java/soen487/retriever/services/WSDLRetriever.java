@@ -62,7 +62,7 @@ public class WSDLRetriever extends Parser {
 				String savedPath = saveInTmp(page, fileName);
 				String description = getDescriptors(fileName, page);
 				System.out.println(description);
-                wsdlDoc.add(new MarfcatInItem(savedPath, description));
+                wsdlDoc.add(new MarfcatInItem(savedPath, "CVE-2009-2902"));
 			} catch (IOException | InterruptedException e) {
 				System.err.println("File not saved");
 				e.printStackTrace();
