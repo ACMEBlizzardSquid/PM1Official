@@ -29,7 +29,13 @@ import java.lang.InterruptedException;
 @WebService
 public class WSCATService {
 
-    //TODO: should return MarfcatOut
+    /**
+     * Submits a WSDL file to analyze 
+     * @param wsdlFile The string representation of the WSDL file
+     * @return The MARFCAT_IN output
+     * @throws IOException
+     * @throws InterruptedException 
+     */
     @WebMethod(operationName = "submitWSDLToAnalyze")
     public String submitWSDLToAnalyze(@WebParam(name = "wsdlFile") String wsdlFile) 
             throws IOException, InterruptedException {
