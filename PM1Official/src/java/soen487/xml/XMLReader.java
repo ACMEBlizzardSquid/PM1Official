@@ -63,7 +63,24 @@ public class XMLReader {
 		doc_factory.setNamespaceAware(true);
 		DocumentBuilder doc_builder = doc_factory.newDocumentBuilder();
 		return doc_builder.parse(retrieveDocument(url, username, password));
-	}
+        }
+        
+        
+        /**
+         * Reads the contents of a URL as a string
+         * @param url The URL to read
+         * @return The string that was at the URL
+         * @throws IOException 
+         */
+        public static String readAsString(String url) 
+                throws IOException {
+            InputStream stream = retrieveDocument(url);
+            int ch;
+            StringBuilder sb = new StringBuilder();
+            while((ch = stream.read())!= -1)
+                sb.append((char)ch);
+            return sb.toString();
+        }
 	
 	//-------------------------------------------------- HTTP
 	
