@@ -25,6 +25,7 @@ import utils.marfcat.MarfcatIn;
 import utils.marfcat.MarfcatInItem;
 import soen487.retriever.services.client.*;
 import java.lang.InterruptedException;
+import soen487.xml.XMLReader;
 
 @WebService
 public class WSCATService {
@@ -93,24 +94,51 @@ public class WSCATService {
             throws ParserConfigurationException, SAXException, IOException,
                     InterruptedException {
         
-        // format MARFCAT_IN file
+        // format the WSDL file
         String localPath = utils.io.FileDownloader.download(wsdlFile);
-        MarfcatIn marfIn = new MarfcatIn();
         String documentation = utils.wsdl.WSDL.getDocumentation(wsdlFile);
+
+        // submit the file for training
+        train(localPath, documentation);
+    }
+    
+    /**
+     * Trains Marfcat using information retrieved from the supplied URI
+     * @param URI The URI to download from
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     * @throws InterruptedException 
+     */
+    @WebMethod(operationName = "trainOnURI")
+    public void trainOnURI (@WebParam(name = "URI") String URI) 
+            throws ParserConfigurationException, SAXException, IOException, 
+                    InterruptedException {
+        
+        // download URI
+        String doc = XMLReader.readAsString(URI);
+        String localPath = utils.io.FileDownloader.download(doc);
+        String documentation = utils.wsdl.WSDL.getDocumentation(doc);
+        
+        // submit the file for training
+        train(localPath, documentation);
+    }
+    
+    /**
+     * Trains Marfcat on a locally saved WSDL file
+     * @param localPath The local path of the WSDL file
+     * @param subject The subject of the WSDL file
+     */
+    private void train (String localPath, String subject) 
+            throws IOException, InterruptedException {
+        
+        
+        MarfcatIn marfIn = new MarfcatIn();
         marfIn.addItem(new MarfcatInItem(localPath, "CVE-2009-3548"));
         String marfPath = marfIn.write();
         
         // train on MARFCAT_IN file
         Marfcat marf = new Marfcat();
         marf.train(marfPath);
-    }
-
-    private void trainOnFile(Document doc) {
-        //TODO: remove --debug ?
-        
-        //TODO: doc to marfcat-in.xml file
-        
-        String[] args = {"--train", "-nopreprep", "-raw", "-fft", "-eucl marfcat-in.xml", "--debug"};
-        marf.apps.MARFCAT.MARFCATApp.main(args);
     }
 }
