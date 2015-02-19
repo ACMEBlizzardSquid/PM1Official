@@ -25,6 +25,7 @@ import utils.marfcat.MarfcatIn;
 import utils.marfcat.MarfcatInItem;
 import soen487.retriever.services.client.*;
 import java.lang.InterruptedException;
+import java.util.List;
 import soen487.xml.XMLReader;
 
 @WebService
@@ -66,12 +67,12 @@ public class WSCATService {
      MARFCAT-IN file or its entries on success.
      */
     @WebMethod(operationName = "submitWSDLRepo")
-    public MarfcatIn submitWSDLRepo(@WebParam(name = "repoURI") URI repoURI) {
+    public List<String> submitWSDLRepo(@WebParam(name = "repoURI") String repoURI) throws IOException_Exception {
         WSDLRetrieveServiceService wsdlRetrieverServiceService = new WSDLRetrieveServiceService();
         WSDLRetrieveService wsdlRetrieverService = wsdlRetrieverServiceService.getWSDLRetrieveServicePort();
         
         try {
-            wsdlRetrieverService.retrieveWSDLs(null, null);
+            return wsdlRetrieverService.retrieveWSDLs(repoURI, null);
         } catch (MalformedURLException_Exception ex) {
             Logger.getLogger(WSCATService.class.getName()).log(Level.SEVERE, null, ex);
         }

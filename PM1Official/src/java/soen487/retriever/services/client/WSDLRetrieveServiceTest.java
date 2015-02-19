@@ -1,7 +1,8 @@
-package soen487.retriever.services;
+package soen487.retriever.services.client;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 
 
 /**
@@ -12,17 +13,13 @@ import java.util.LinkedList;
 public class WSDLRetrieveServiceTest {
 //	final static String SEARCH_ROOT = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/5-check.wsdl";
 	final static String SEARCH_ROOT = "http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/";
-	public static void main(String[] args) {
-		WSDLRetrieveService service = new WSDLRetrieveService();
-		
-                LinkedList<String> wsdls = new LinkedList<String>();
-		try {
-			wsdls = (LinkedList<String>) service.retrieveWSDLs(SEARCH_ROOT, 10);
-	        for (String string : wsdls) {
-	            System.out.println(string);
-	        }
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public static void main(String[] args) throws MalformedURLException_Exception, IOException_Exception {
+		WSDLRetrieveServiceService wsdlRetrieveServiceService = new WSDLRetrieveServiceService();
+                WSDLRetrieveService wsdlRetrieveService = wsdlRetrieveServiceService.getWSDLRetrieveServicePort();
+                
+                List<String> wsdls = wsdlRetrieveService.retrieveWSDLs(SEARCH_ROOT, null);
+                for (String wsdl : wsdls) {
+                    System.out.println(wsdl);
+                }
 	}
 }

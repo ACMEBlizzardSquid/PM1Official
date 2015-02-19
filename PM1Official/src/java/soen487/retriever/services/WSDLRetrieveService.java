@@ -33,7 +33,7 @@ public class WSDLRetrieveService {
 	public List<String> retrieveWSDLs(@WebParam(name = "wsdlURI") String pstrSeedURI, @WebParam(name = "limit") Integer piLimit) throws MalformedURLException, IOException {
 		// Input validation
 		pstrSeedURI = (pstrSeedURI != null)?pstrSeedURI:DEFAULT_URL;
-		piLimit     = (piLimit > 0)?piLimit:DEFAULT_LIMIT;
+		piLimit     = (piLimit != null && piLimit > 0)?piLimit:DEFAULT_LIMIT;
 		
 		// Marfcat
 		MarfcatIn marf = new MarfcatIn();

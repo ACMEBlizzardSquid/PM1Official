@@ -15,7 +15,7 @@ public class WSCATServiceTestClient {
         
         String wsdl = "";
         try {
-            wsdl = WSDL.getWSDL("http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/5-check.wsdl");
+            wsdl = WSDL.getWSDL("http://data.serviceplatform.org/wsdl_grabbing/service_repository-wsdls/valid_WSDLs/");
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(WSCATServiceTestClient.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SAXException ex) {
@@ -24,6 +24,6 @@ public class WSCATServiceTestClient {
             Logger.getLogger(WSCATServiceTestClient.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        wscatService.submitWSDLToAnalyze(wsdl);
+        wscatService.submitWSDLRepo(wsdl);
     }
 }
