@@ -62,6 +62,12 @@ public class ProgrammableWebWSDLRetriever extends Parser {
 
 	@Override
 	protected boolean parsePage(URL domain, String page) {
+		String categoryRegex = "Primary Category</label>\\s*.span.\\s*.a href=\"([a-zA-Z0-9/]*)\"";
+		Matcher match = Pattern.compile(categoryRegex, Pattern.DOTALL).matcher(page);
+		if(match.find()){
+			System.out.println("Category:" + match.group(0));
+			this.categoryString = match.group(1);
+		}
 		return true;
 	}
 
@@ -86,7 +92,7 @@ public class ProgrammableWebWSDLRetriever extends Parser {
 			}
 			if(wsdl != null){
 				this.endpoint.add(wsdl);
-				this.category.add(getCategory(category));
+				this.category.add(getCategory(this.categoryString));
 			}
 			anchors.clear();
 		}
@@ -185,6 +191,7 @@ public class ProgrammableWebWSDLRetriever extends Parser {
 	private @Reduced List<String> endpoint;
 	private @Reduced List<String> category;
 	private int pageNumber;
+	private String categoryString;
 	
 	private static final int LAST_PAGE   = 115;
 	
@@ -198,11 +205,15 @@ public class ProgrammableWebWSDLRetriever extends Parser {
 	public static void main(String[] args) {
 		String downloadpath = (args.length<=0)?DEFAULT_FOLDER:args[0];
 		String marfpath     = (args.length<=1)?DEFAULT_MARF  :args[1];
+		String chunkSize       = (args.length<=2)?"10":args[2];
+		String searchDepth     = (args.length<=3)?"50":args[3];
+		System.out.println("Download Dir: "+downloadpath);
+		System.out.println("Marf Dir: "+marfpath);
 		try {
 			MarfcatIn marf = new MarfcatIn();
 			ProgrammableWebWSDLRetriever parser = new ProgrammableWebWSDLRetriever(SEACH_ROOT);
-			parser.setChunkSize(10); // Enabling multithreading
-			parser.setSearchDepth(400); // Urls per thread
+			parser.setChunkSize(Integer.valueOf(chunkSize)); // Enabling multithreading
+			parser.setSearchDepth(Integer.valueOf(searchDepth)); // Urls per thread
 			new ForkJoinPool().invoke(parser);
 			ListIterator<String> wsdlIt     = parser.getWSDLURL().listIterator();
 			ListIterator<String> categoryIt = parser.getCategories().listIterator();
@@ -211,8 +222,10 @@ public class ProgrammableWebWSDLRetriever extends Parser {
 				String cate     = categoryIt.next();
 				String filename = generateFileName(wsdl);
 				String absPath  = downloadpath + "/" + filename;
-				if(download(wsdl, downloadpath + "/" + filename))
+				if(download(wsdl, downloadpath + "/" + filename)){
+					System.out.println("Saving "+absPath);
 					marf.addItem(new MarfcatInItem(absPath, cate));
+				}
 			}
 			marf.appendWithJAXB(marfpath);
 		} catch (MalformedURLException e) {
