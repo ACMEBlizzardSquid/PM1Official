@@ -23,13 +23,30 @@ public class EchoXMLReader {
 	public static enum XMLType { RSS, NN, MARFCAT_IN, MARFCAT_OUT, WSDL }
 
 	@WebMethod
-	public String readFromFile(@WebParam(name="file") File xmlfile, @WebParam(name="type") XMLType type) 
+	public String getType(@WebParam(name="type") String type) 
 			throws ParserConfigurationException, SAXException, IOException{
-		return prettyPrint(XMLReader.readAsDOM(xmlfile));
+            
+            String[] args = new String[]{};
+            
+            switch (type) {
+                case "MARFCAT_IN":
+                    return soen487.pm1.MARFCAT_IN.run();
+                case "MARFCAT_OUT":
+                    return soen487.pm1.MARFCAT_OUT.run();
+                case "NN":
+                    return soen487.pm1.NN.run();
+                case "RSS":
+                    return soen487.pm1.RSS.run();
+                case "WSDL":
+                    return soen487.pm1.WSDL.run();
+            }
+            
+            return "Invalid type!  Type must be one of the following: "
+                    + "[\"MARFCAT_IN\", \"MARFCAT_OUT\", \"NN\", \"RSS\", \"WSDL\"]";
 	}
 	
 	@WebMethod
-	public String readFromUrl(@WebParam(name="url") String url, @WebParam(name="type") XMLType type) 
+	public String readFromUrl(@WebParam(name="url") String url) 
 			throws ParserConfigurationException, SAXException, IOException{
 		return prettyPrint(XMLReader.readAsDOM(url));
 	}

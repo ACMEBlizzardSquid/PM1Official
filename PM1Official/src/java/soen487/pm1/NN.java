@@ -19,8 +19,11 @@ import soen487.xml.XMLReader;
 public class NN {
     
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-        String result = getNN("http://marf.cvs.sf.net/viewvc/marf/apps/TestNN/samples/test1.xml?revision=1.1");
-        System.out.println(result);
+        System.out.println(run());
+    }
+    
+    public static String run () throws ParserConfigurationException, SAXException, IOException {
+        return getNN("http://marf.cvs.sf.net/viewvc/marf/apps/TestNN/samples/test1.xml?revision=1.1");
     }
     
     public static String getNN(String url)   throws ParserConfigurationException, SAXException, IOException {

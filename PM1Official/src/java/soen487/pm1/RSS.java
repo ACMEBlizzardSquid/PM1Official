@@ -21,8 +21,11 @@ import soen487.xml.XMLParser;
 public class RSS {
     
     public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException {
-        String result = getRss("http://www.ledevoir.com/rss/edition_complete.xml");
-        System.out.println(result);
+        System.out.println(run());
+    }
+    
+    public static String run () throws ParserConfigurationException, SAXException, IOException {
+        return getRss("http://www.ledevoir.com/rss/edition_complete.xml");
     }
 
     public static String getRss(String url)   throws ParserConfigurationException, SAXException, IOException {

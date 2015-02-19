@@ -20,8 +20,13 @@ public class MARFCAT_OUT {
     
     public static void main(String[] args) 
             throws ParserConfigurationException, SAXException, IOException {
+        System.out.println(run());
+    }
+    
+    public static String run () 
+            throws ParserConfigurationException, SAXException, IOException {
         Document doc = XMLReader.readAsDOM("http://users.encs.concordia.ca/~s487_4/project/marfcat-out.xml", "soen487-w15", "H-633");
         String result = XMLParser.prettyPrint(doc.getDocumentElement());
-        System.out.println(result);
+        return result;
     }
 }
