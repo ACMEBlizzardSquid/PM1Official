@@ -2,6 +2,7 @@ package soen487.retriever.services;
 
 import java.net.MalformedURLException;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 
@@ -43,10 +44,13 @@ public class WSDLRetrieveService {
 		try {
 			parser = new WSDLRetriever(pstrSeedURI, piLimit);
 			new ForkJoinPool().invoke(parser);
-			for(MarfcatInItem item : parser.getWSDLDescription())
+			List<String> localfiles = new LinkedList<>();
+			for(MarfcatInItem item : parser.getWSDLDescription()){
+				localfiles.add(item.getPath());
 				marf.addItem(item);
+			}
 			marf.appendWithJAXB("MARFCAT_IN.xml");
-			return parser.getWSDL();
+			return localfiles;
 		} catch (NoSuchMethodException | SecurityException | InterruptedException e) {
 			e.printStackTrace();
 		} catch (JAXBException e) {
