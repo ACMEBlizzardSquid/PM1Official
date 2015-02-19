@@ -67,12 +67,21 @@ public class WSCATService {
      MARFCAT-IN file or its entries on success.
      */
     @WebMethod(operationName = "submitWSDLRepo")
-    public List<String> submitWSDLRepo(@WebParam(name = "repoURI") String repoURI) throws IOException_Exception {
+    public String submitWSDLRepo(@WebParam(name = "repoURI") String repoURI) 
+            throws IOException_Exception, IOException, InterruptedException {
+        
         WSDLRetrieveServiceService wsdlRetrieverServiceService = new WSDLRetrieveServiceService();
         WSDLRetrieveService wsdlRetrieverService = wsdlRetrieverServiceService.getWSDLRetrieveServicePort();
-        
+        List<String> wsdls;
+        MarfcatIn marfIn = new MarfcatIn();
         try {
-            return wsdlRetrieverService.retrieveWSDLs(repoURI, null);
+            wsdls = wsdlRetrieverService.retrieveWSDLs(repoURI, null);
+            for (String wsdl : wsdls) {
+                marfIn.addItem(new MarfcatInItem(wsdl));
+            }
+            String marfInPath = marfIn.write();
+            byte[] encoded = Files.readAllBytes(Paths.get(marfInPath));
+            return new String(encoded);
         } catch (MalformedURLException_Exception ex) {
             Logger.getLogger(WSCATService.class.getName()).log(Level.SEVERE, null, ex);
         }
