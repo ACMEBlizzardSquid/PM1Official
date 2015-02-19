@@ -24,6 +24,7 @@ import soen487.retriever.services.client.*;
 import utils.marfcat.MarfcatIn;
 import utils.marfcat.MarfcatInItem;
 import soen487.retriever.services.client.*;
+import java.lang.InterruptedException;
 
 @WebService
 public class WSCATService {
@@ -32,6 +33,7 @@ public class WSCATService {
     @WebMethod(operationName = "submitWSDLToAnalyze")
     public String submitWSDLToAnalyze(@WebParam(name = "wsdlFile") String wsdlFile) 
             throws IOException, InterruptedException {
+        
         String localPath = utils.io.FileDownloader.download(wsdlFile);
         MarfcatIn marfIn = new MarfcatIn();
         Marfcat marf = new Marfcat();
@@ -71,22 +73,30 @@ public class WSCATService {
         return null;
     }
 
-    @WebMethod(operationName = "trainOnFile")
-    /*
-    Can train on a file OR a file from URI
-    */
-    public void trainOnFile(@WebParam(name = "wsdlFile") File wsdlFile, @WebParam(name = "wsdlURI") URI wsdlURI) throws ParserConfigurationException, SAXException, IOException {
-        DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-        Document wsdlDoc = null;
+    
+    /**
+     * Trains Marfcat on a provided WSDL file
+     * @param wsdlFile A string representation of the WSDL file 
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException
+     * @throws InterruptedException 
+     */
+    @WebMethod(operationName = "trainOnWSDL")
+    public void trainOnWSDL (@WebParam(name = "wsdlFile") String wsdlFile) 
+            throws ParserConfigurationException, SAXException, IOException,
+                    InterruptedException {
         
-        if(wsdlFile != null) {
-            wsdlDoc = docBuilder.parse(wsdlFile);
-        } else if(wsdlURI != null) {
-            wsdlDoc = docBuilder.parse(wsdlURI.toString());
-        }
+        // format MARFCAT_IN file
+        String localPath = utils.io.FileDownloader.download(wsdlFile);
+        MarfcatIn marfIn = new MarfcatIn();
+        String documentation = utils.wsdl.WSDL.getDocumentation(wsdlFile);
+        marfIn.addItem(new MarfcatInItem(localPath, "CVE-2009-3548"));
+        String marfPath = marfIn.write();
         
-        trainOnFile(wsdlDoc);
+        // train on MARFCAT_IN file
+        Marfcat marf = new Marfcat();
+        marf.train(marfPath);
     }
 
     private void trainOnFile(Document doc) {

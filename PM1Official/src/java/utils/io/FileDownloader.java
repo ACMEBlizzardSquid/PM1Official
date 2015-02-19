@@ -24,11 +24,17 @@ public class FileDownloader {
     public static String download (String receivedFile) 
             throws IOException {
         String uuid = UUID.randomUUID().toString().replace("-", "");
-        String path = "/tmp/" + uuid;
+        String directory = "/tmp/";
+        String path = directory + uuid;
+        new File(directory).mkdirs();
         FileOutputStream fos = new FileOutputStream(path);
         PrintStream out = new PrintStream(fos);
         out.print(receivedFile);
         out.close();
+        File file = new File(path);
+        file.setReadable(true);
+        file.setWritable(true);
+        file.setExecutable(true);
         return path;
     }
 }

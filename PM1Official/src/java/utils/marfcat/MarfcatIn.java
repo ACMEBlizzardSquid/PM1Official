@@ -332,7 +332,7 @@ public class MarfcatIn {
             out.println("    </meta>");
             out.println("    <location line=\"\" fraglines=\"\">");
             out.println("      <meta>");
-            out.println("        <cve>\"" + item.getCVE() + "\"</cve>");
+            out.println("        <cve>" + item.getCVE() + "</cve>");
             out.println("        <name cweid=\"\"></name>");
             out.println("      </meta>");
             out.println("      <fragment>");

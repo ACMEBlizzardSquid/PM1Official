@@ -18,7 +18,7 @@ public class Marfcat {
     
     public static final String MARFCAT_LIB = "/WEB-INF/lib";
     
-    private String rootPath;        // the root application path
+    private static String rootPath = System.getProperty("user.dir");        // the root application path
     
     /**
      * Initializes the facade
@@ -91,21 +91,10 @@ public class Marfcat {
         } catch (Exception e) {
             System.out.println(e.toString());
         }
-//        Process process = Runtime.getRuntime().exec(command);
-        
-        // redirect Marfcat output streams
-//        InputStream in = process.getInputStream();
-//        InputStream err = process.getErrorStream();
-//        StreamMonitor inMonitor = new StreamMonitor(in);
-//        StreamMonitor errMonitor = new StreamMonitor(err, true);
-//        inMonitor.run();
-//        errMonitor.run();
-//        
-//        // wait for process to finish
-//        process.waitFor();
         
         // return path to output file
-        String filePath = rootPath + "/report-noprepreprawfftcheb-" + uuid + ".xml";
+        String inputBlah = inputFilePath.replace("/", "");
+        String filePath = rootPath + "/report-" + inputBlah + "noprepreprawfftcheb-" + uuid + ".xml";
         return filePath;
     }
 }

@@ -50,15 +50,16 @@ public class XMLParser {
         return doc_string;
     }
     
-    public static Document parseDOM(String xml) {
-        try {
-            DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
-            fac.setNamespaceAware(true);
-            DocumentBuilder builder = fac.newDocumentBuilder();
-            return builder.parse(new ByteArrayInputStream(xml.getBytes()));
-        } catch (Exception e) {
-            // cry
-        }
-        return null;
+    /**
+     * Generates a document from an XML string
+     * @param xml A string of XML
+     * @return A document
+     */
+    public static Document parseDOM(String xml)
+            throws SAXException, IOException, ParserConfigurationException {
+        DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
+        fac.setNamespaceAware(true);
+        DocumentBuilder builder = fac.newDocumentBuilder();
+        return builder.parse(new ByteArrayInputStream(xml.getBytes()));
     }
 }

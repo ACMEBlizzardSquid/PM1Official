@@ -1,15 +1,18 @@
 package utils.wsdl;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 /**
  * This class will provide functionality for WSDL documents
@@ -47,7 +50,10 @@ public class WSDL {
      * @param doc A string representation of the WSDL document
      * @return The contents of the service documentation node
      */
-    public static String getDocumentation (String doc) {
-        return getDocumentation(soen487.xml.XMLParser.parseDOM(doc));
+    public static String getDocumentation (String doc)
+            throws ParserConfigurationException, SAXException, IOException {
+        Document d = soen487.xml.XMLParser.parseDOM(doc);
+        String documentationString = getDocumentation(d);
+        return documentationString;
     }
 }
